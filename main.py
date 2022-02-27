@@ -1,12 +1,13 @@
 """
-Sabrina Fang and Hannah Burrows
-CSE 163 SECTIONS
+Hannah Burrows and Sabrina Fang
+CSE 163 Section AB and SABRINA's SECTION
 
-PROJECT DESCRIPTION
+Van Gogh in the Age of Computers is a project that seeks to explore ____
 """
-# command to run code: python home.py
+# command to run code: python main.py
 
 import pandas as pd
+import requests
 import plotly
 import eli5
 
@@ -15,10 +16,44 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 
 
+def colors_genres(df):
+    """
+    Comment
+    """
+    print('started colors_genres')
+
+
+def van_gogh_topics(df):
+    """
+    Comment
+    """
+    print('started van_gogh_topics')
+    terms = {}
+
+    # should we define this outside this function? won't be referenced anywhere but is technically a constant
+    MET_MUSEUM_API = 'https://collectionapi.metmuseum.org/public/collection/v1'
+    paintings_ids = requests.get(MET_MUSEUM_API + '/search?q=Van_Gogh')
+    for id in paintings_ids.json()['objectIDs']:
+        # print(id)
+        painting_info = requests.get(MET_MUSEUM_API + '/objects/' + str(id))
+        for tag in painting_info.json()['tags']:
+            print(tag['term'])
+            """
+            term = tag['term']
+            if term in terms:
+                terms[term] += 1
+            else:
+                terms[term] = 1
+            """
+    print(terms)
+
+
 def main():
-    df = pd.read_csv('data/df_reduced.csv')
-    print('hello')
-    print(df.head())
+    print('running main...')
+    df = pd.read_csv('df_reduced.csv')
+    colors_genres(df)
+    van_gogh_topics(df)
+    print('finished main!')
 
 
 if __name__ == '__main__':
