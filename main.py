@@ -42,9 +42,10 @@ def van_gogh_topics(df):
                     terms[term] += 1
                 else:
                     terms[term] = 1
-    print(terms)
-    # next: sort dictionary
-    # splice for top 10
+    terms = sorted(terms.items(), key=lambda t: t[1], reverse=True)
+    top_10 = terms[:10]
+    print(top_10)
+    # [('Women', 66), ('Men', 51), ('Landscapes', 33), ('Portraits', 31), ('Still Life', 20), ('Flowers', 18), ('Boats', 15), ('Female Nudes', 12), ('Gardens', 8), ('Children', 8)]
     # graph with plotly
 
 
