@@ -14,10 +14,10 @@ MET_MUSEUM_API = 'https://collectionapi.metmuseum.org/public/collection/v1'
 def query_api_topics():
     """
     Queries the Met Museum API for the topics in each of Van Gogh's
-    paintings that they have, and returns a sorted list of tuples of the top 10
-    most common topics, with each tuple containing first the topic, then the
-    number of occurences. Due to the API limiting requests per second, this
-    function may take a while to run.
+    paintings that they have, and returns a dictionary where the keys are
+    topics and the values are counts for the number of occurences for that
+    topic. Due to the API limiting requests per second, this function may take
+    a while to run.
     """
     print('started querying api - this may take a while')
     terms = {}
@@ -32,10 +32,4 @@ def query_api_topics():
                     terms[term] += 1
                 else:
                     terms[term] = 1
-
-    terms = sorted(terms.items(), key=lambda t: t[1], reverse=True)
-    top_10 = terms[:10]
-    # [('Women', 66), ('Men', 51), ('Landscapes', 33), ('Portraits', 31),
-    # ('Still Life', 20), ('Flowers', 18), ('Boats', 15), ('Female Nudes', 12),
-    # ('Gardens', 8), ('Children', 8)]
-    return top_10
+    return terms
