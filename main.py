@@ -36,13 +36,6 @@ def colors_genres(df, hex_df):
     Comment
     """
     print('started colors_genres')
-    """
-     genre = widgets.Dropdown(
-        options=list(df['Genre'].unique()),
-        value='still life',
-        description='Genre: '
-    )
-    """
 
     genres = [('landscape', 'Landscape'),
               ('animal painting', 'Animal Painting'),
@@ -67,15 +60,23 @@ def colors_genres(df, hex_df):
     hex_df = hex_df.rename(columns={'Name': 'Hex Name', 'Colors': 'Hex Code'})
     df = df.rename(columns={'Colors': 'Color'})
 
-    mask = df['Genre'] == current_genre
-    s_hex = hex_df.loc[mask, 'Hex Code']
+    #mask = df['Genre'] == current_genre
+    s_genre = df.loc[:, 'Genre']
+    s_hex = hex_df.loc[:, 'Hex Code']
     s_hex = remove_color_formatting(s_hex)
-    s_colors = df.loc[mask, 'Color']
+    s_colors = df.loc[:, 'Color']
     s_colors = remove_color_formatting(s_colors)
 
-    merged = pd.concat([s_colors, s_hex], axis=1)
-    merged['Count'] = merged.groupby('Color').transform('count')
-    merged = merged.drop_duplicates(subset=['Color'])
+    unfiltered = pd.concat([s_colors, s_hex, s_genre], axis=1)
+    print(unfiltered[:10])
+
+    count = s_colors.groupby(s_colors).count()
+    print(count)
+
+    # merged['Count'] = merged.groupby('Color').transform('count')
+    # merged = merged.drop_duplicates(subset=['Color'])
+
+    """
     top_10 = merged.nlargest(10, 'Count')
 
     source = ColumnDataSource(top_10)
@@ -84,8 +85,8 @@ def colors_genres(df, hex_df):
 
     # cannot get it to update graph with newly filtered data
     callback = CustomJS(args=dict(df=df_source, hex_df=hex_df_source), code="""
-        console.log(df[:10])
-        console.log(cb_obj.value)
+        # console.log(df[:10])
+        # console.log(cb_obj.value)
     """)
 
     dropdown = Dropdown(label='Genre', menu=genres)
@@ -100,7 +101,7 @@ def colors_genres(df, hex_df):
     f = figure(x_range=colors, width=1000,
                title=('Most Frequently Used Colors For: ' + current_genre))
     f.vbar(x='Color', top='Count', color='Hex Code', source=source, width=0.9)
-
+    """
     """
     # https://github.com/bokeh/bokeh/issues/3621
     tooltips = [
@@ -110,22 +111,7 @@ def colors_genres(df, hex_df):
     f.add_tools(HoverTool(tooltips=tooltips))
     """
 
-    show(row(f, menu))
-
-    """
-    fig = go.FigureWidget()
-    fig.add_bar(x=df['Color'], y=df['Count'])
-    fig.layout.title.text = 'Most Frequently Used Colors'
-    fig.show()
-    """
-
-    """
-
-    if genre.value in df['Genre'].unique():
-        print('agh')
-        filter_for_genre = df['Genre'] == genre.value
-        temp_df = df[filter_for_genre]
-    """
+    # show(row(f, menu))
 
 
 def remove_color_formatting(series):
@@ -143,10 +129,17 @@ def most_frequent_topics():
     """
     Answers question 4
     """
+    # queries api
     topics = query_api_topics()
+
+    # converts dictionary from querying api to dataframe
     df = pd.DataFrame(list(topics.items()))
     df.columns = ['Topic', 'Count']
+
+    # sorts dataframe and selects top 10
     top_10 = df.nlargest(10, 'Count')
+
+    # graphs sorted dataframe
     graph_top_10(top_10, 'Topic', 'Top 10 Topics in Van Gogh\'s Paintings')
 
 
@@ -166,11 +159,11 @@ def main():
     df = pd.read_csv('df_reduced.csv')
     hex_df = pd.read_csv('df.csv')
 
+    # question 2 -
     colors_genres(df, hex_df)
 
     # question 4 - What topics did Van Gogh paint about the most?
-    """
-    """
+    # most_frequent_topics()
 
     # testing q4:
     """
