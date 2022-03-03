@@ -1,0 +1,86 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+    
+      <meta charset="utf-8">
+      <title>Bokeh Plot</title>
+      
+      
+        
+          
+        
+        
+          
+        <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-2.4.2.min.js"></script>
+        <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.4.2.min.js"></script>
+        <script type="text/javascript">
+            Bokeh.set_log_level("info");
+        </script>
+        
+      
+      
+    
+  </head>
+  
+  
+  <body>
+    
+      
+        
+          
+          
+            
+              <div class="bk-root" id="e02916a1-a889-44a1-a163-fa08396f7c9a" data-root-id="1002"></div>
+            
+          
+        
+      
+      
+        <script type="application/json" id="1004">
+          {"2ee48f8d-b590-4375-9410-f9469da28aa1":{"defs":[],"roots":{"references":[{"attributes":{"code":"console.log(this.item)"},"id":"1003","type":"CustomJS"},{"attributes":{"icon":null,"js_event_callbacks":{"menu_item_click":[{"id":"1003"}]},"label":"Genre","menu":[["Landscape","landscape"],["Animal Painting","animal painting"],["Sketch and Study","sketch and study"],["Still Life","still life"],["Genre Painting","genre painting"],["Cityscape","cityscape"],["Portrait","portrait"],["Nude Painting","nude painting (nu)"],["Flower Painting","flower painting"],["Vanitas","vanitas"],["Figurative","figurative"],["Self-Portrait","self-portrait"],["Panorama","panorama"],["Interior","interior"],["Marina","marina"],["Religious Painting","religious painting"],["Cloudscape","cloudscape"]]},"id":"1002","type":"Dropdown"}],"root_ids":["1002"]},"title":"Bokeh Application","version":"2.4.2"}}
+        </script>
+        <script type="text/javascript">
+          (function() {
+            const fn = function() {
+              Bokeh.safely(function() {
+                (function(root) {
+                  function embed_document(root) {
+                    
+                  const docs_json = document.getElementById('1004').textContent;
+                  const render_items = [{"docid":"2ee48f8d-b590-4375-9410-f9469da28aa1","root_ids":["1002"],"roots":{"1002":"e02916a1-a889-44a1-a163-fa08396f7c9a"}}];
+                  root.Bokeh.embed.embed_items(docs_json, render_items);
+                
+                  }
+                  if (root.Bokeh !== undefined) {
+                    embed_document(root);
+                  } else {
+                    let attempts = 0;
+                    const timer = setInterval(function(root) {
+                      if (root.Bokeh !== undefined) {
+                        clearInterval(timer);
+                        embed_document(root);
+                      } else {
+                        attempts++;
+                        if (attempts > 100) {
+                          clearInterval(timer);
+                          console.log("Bokeh: ERROR: Unable to run BokehJS code because BokehJS library is missing");
+                        }
+                      }
+                    }, 10, root)
+                  }
+                })(window);
+              });
+            };
+            if (document.readyState != "loading") fn();
+            else document.addEventListener("DOMContentLoaded", fn);
+          })();
+        </script>
+    
+  </body>
+  
+</html>

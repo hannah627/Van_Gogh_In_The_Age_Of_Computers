@@ -5,11 +5,22 @@ CSE 163 Section AB and SABRINA's SECTION
 Van Gogh in the Age of Computers is a project that seeks to explore ____
 """
 # command to run code: python main.py
+# if you have issues where it says pandas is not found/installed, kill
+# terminals and start a new Command Line terminal
+# plotly and sklearn and pandas should be fine, but if you're getting warnings
+# about ipywidgets or eli5, google conda install [package] and run that and it
+# should fix it
 
+from os import remove
 import pandas as pd
-import plotly
 import plotly.express as px
 import plotly.graph_objects as go
+
+from bokeh.io import output_file, show
+from bokeh.plotting import figure
+from bokeh.models import HoverTool, CustomJS, Dropdown, ColumnDataSource, Select
+from bokeh.layouts import row
+
 from ipywidgets import widgets
 import eli5
 
@@ -20,41 +31,123 @@ from sklearn.model_selection import train_test_split
 from query_api import query_api_topics
 
 
-def colors_genres(df):
+def colors_genres(df, hex_df):
     """
     Comment
     """
     print('started colors_genres')
-
-    fig = go.FigureWidget()
-    fig.add_bar(x=df['Color'], y=df['Count'])
-    fig.layout.title.text = 'Most Frequently Used Colors'
-
-    genre = widgets.Dropdown(
+    """
+     genre = widgets.Dropdown(
         options=list(df['Genre'].unique()),
         value='still life',
         description='Genre: '
     )
+    """
+
+    genres = [('landscape', 'Landscape'),
+              ('animal painting', 'Animal Painting'),
+              ('Sketch and Study', 'sketch and study'),
+              ('Still Life', 'still life'),
+              ('Genre Painting', 'genre painting'),
+              ('Cityscape', 'cityscape'),
+              ('Portrait', 'portrait'),
+              ('Nude Painting', 'nude painting (nu)'),
+              ('Flower Painting', 'flower painting'),
+              ('Vanitas', 'vanitas'),
+              ('Figurative', 'figurative'),
+              ('Self-Portrait', 'self-portrait'),
+              ('Panorama', 'panorama'),
+              ('Interior', 'interior'),
+              ('Marina', 'marina'),
+              ('Religious Painting', 'religious painting'),
+              ('Cloudscape', 'cloudscape')]
+
+    current_genre = 'still life'
+
+    hex_df = hex_df.rename(columns={'Name': 'Hex Name', 'Colors': 'Hex Code'})
+    df = df.rename(columns={'Colors': 'Color'})
+
+    mask = df['Genre'] == current_genre
+    s_hex = hex_df.loc[mask, 'Hex Code']
+    s_hex = remove_color_formatting(s_hex)
+    s_colors = df.loc[mask, 'Color']
+    s_colors = remove_color_formatting(s_colors)
+
+    merged = pd.concat([s_colors, s_hex], axis=1)
+    merged['Count'] = merged.groupby('Color').transform('count')
+    merged = merged.drop_duplicates(subset=['Color'])
+    top_10 = merged.nlargest(10, 'Count')
+
+    source = ColumnDataSource(top_10)
+    df_source = ColumnDataSource(df)
+    hex_df_source = ColumnDataSource(hex_df)
+
+    # cannot get it to update graph with newly filtered data
+    callback = CustomJS(args=dict(df=df_source, hex_df=hex_df_source), code="""
+        console.log(df[:10])
+        console.log(cb_obj.value)
+    """)
+
+    dropdown = Dropdown(label='Genre', menu=genres)
+    dropdown.js_on_event('menu_item_click', callback)
+
+    menu = Select(options=genres, value='Still Life', title='Genre')
+    menu.js_on_change('value', callback)
+
+    output_file('graphs/q2.html')
+
+    colors = top_10['Color'].tolist()
+    f = figure(x_range=colors, width=1000,
+               title=('Most Frequently Used Colors For: ' + current_genre))
+    f.vbar(x='Color', top='Count', color='Hex Code', source=source, width=0.9)
+
+    """
+    # https://github.com/bokeh/bokeh/issues/3621
+    tooltips = [
+    ('Color', '@colors'),
+    ('Count', '@count'),
+    ]
+    f.add_tools(HoverTool(tooltips=tooltips))
+    """
+
+    show(row(f, menu))
+
+    """
+    fig = go.FigureWidget()
+    fig.add_bar(x=df['Color'], y=df['Count'])
+    fig.layout.title.text = 'Most Frequently Used Colors'
+    fig.show()
+    """
+
+    """
 
     if genre.value in df['Genre'].unique():
         print('agh')
         filter_for_genre = df['Genre'] == genre.value
         temp_df = df[filter_for_genre]
-
-
-
-
-def select_top_10(dictionary, columns_names):
     """
-    Takes a dictionary where the keys are something specified by the first
-    string in columns_names and the values are the counts for those keys, as
-    well as a list of column names, and returns the top 10 of those keys and
-    their counts as a pandas dataframe top_10.
+
+
+def remove_color_formatting(series):
     """
-    df = pd.DataFrame(list(dictionary.items()))
-    df.columns = columns_names
+    """
+    series = series.str.replace('\'', '')
+    series = series.str.replace('(', '')
+    series = series.str.replace(')', '')
+    series = series.str.split(', ')
+    series = series.explode()
+    return series
+
+
+def most_frequent_topics():
+    """
+    Answers question 4
+    """
+    topics = query_api_topics()
+    df = pd.DataFrame(list(topics.items()))
+    df.columns = ['Topic', 'Count']
     top_10 = df.nlargest(10, 'Count')
-    return top_10
+    graph_top_10(top_10, 'Topic', 'Top 10 Topics in Van Gogh\'s Paintings')
 
 
 def graph_top_10(top_10, xcol, title):
@@ -65,30 +158,27 @@ def graph_top_10(top_10, xcol, title):
     """
     fig = px.bar(top_10, x=xcol, y='Count', title=title)
     fig.show()  # semi-interactive - can hover
-    fig.write_image('graphs/question_4.png', auto_open=True)
+    # fig.write_image('graphs/question_4.png') - need to install kaleido
 
 
 def main():
     print('running main...')
     df = pd.read_csv('df_reduced.csv')
+    hex_df = pd.read_csv('df.csv')
 
-    # colors_genres(df)
+    colors_genres(df, hex_df)
 
     # question 4 - What topics did Van Gogh paint about the most?
     """
-    topics = query_api_topics()
-    top_10_topics = select_top_10(topics, ['Topic', 'Count'])
-    graph_top_10(top_10_topics, 'Topic', 'Top 10 Topics in Van Gogh\'s \
-Paintings')
     """
 
     # testing q4:
+    """
     test_dict = {"clouds": 22, "stars": 10, "women": 84, "men": 187,
                  "shoes": 2}
     test = select_top_10(test_dict, ['Topic', 'Count'])
     print('test df: ', test)
-    graph_top_10(test)
-    """
+    graph_top_10(test, 'Topic', 'Test')
     test2 = select_top_10(test_dict, ['Colors', 'Count']) # diff colnames works
     print(test2)
     """
