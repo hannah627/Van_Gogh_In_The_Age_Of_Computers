@@ -19,7 +19,7 @@ import plotly.graph_objects as go
 from bokeh.io import output_file, show
 from bokeh.plotting import figure
 from bokeh.models import HoverTool, CustomJS, Dropdown, ColumnDataSource, Select
-from bokeh.layouts import row
+from bokeh.layouts import row, gridplot, column
 
 from ipywidgets import widgets
 import eli5
@@ -73,6 +73,12 @@ def colors_genres(df, hex_df):
     count = s_colors.groupby(s_colors).count()
     print(count)
 
+    # need to find a way to add count as a column to the unfiltered df
+    # then filter for first, default genre
+    # pass both unfiltered and filtered to callback function
+    # filter data using JavaScript in callback and return those changes
+    # use filtered data for graphing
+
     # merged['Count'] = merged.groupby('Color').transform('count')
     # merged = merged.drop_duplicates(subset=['Color'])
 
@@ -112,6 +118,205 @@ def colors_genres(df, hex_df):
     """
 
     # show(row(f, menu))
+
+
+def og(df, hex_df):
+    """
+    Graph with colored bars but no hover or filtering based on genre; could use
+    for loop and make graphs for each genre, but they would not be interactive
+    """
+    print('started colors_genres')
+
+    genres = [('landscape', 'Landscape'),
+              ('animal painting', 'Animal Painting'),
+              ('Sketch and Study', 'sketch and study'),
+              ('Still Life', 'still life'),
+              ('Genre Painting', 'genre painting'),
+              ('Cityscape', 'cityscape'),
+              ('Portrait', 'portrait'),
+              ('Nude Painting', 'nude painting (nu)'),
+              ('Flower Painting', 'flower painting'),
+              ('Vanitas', 'vanitas'),
+              ('Figurative', 'figurative'),
+              ('Self-Portrait', 'self-portrait'),
+              ('Panorama', 'panorama'),
+              ('Interior', 'interior'),
+              ('Marina', 'marina'),
+              ('Religious Painting', 'religious painting'),
+              ('Cloudscape', 'cloudscape')]
+
+    current_genre = 'still life'
+
+    hex_df = hex_df.rename(columns={'Name': 'Hex Name', 'Colors': 'Hex Code'})
+    df = df.rename(columns={'Colors': 'Color'})
+
+    mask = df['Genre'] == current_genre
+    s_hex = hex_df.loc[mask, 'Hex Code']
+    s_hex = remove_color_formatting(s_hex)
+    s_colors = df.loc[mask, 'Color']
+    s_colors = remove_color_formatting(s_colors)
+
+    merged = pd.concat([s_colors, s_hex], axis=1)
+
+    merged['Count'] = merged.groupby('Color').transform('count')
+    merged = merged.drop_duplicates(subset=['Color'])
+    top_10 = merged.nlargest(10, 'Count')
+    print(top_10)
+
+    source = ColumnDataSource(top_10)
+    df_source = ColumnDataSource(df)
+    hex_df_source = ColumnDataSource(hex_df)
+
+    # cannot get it to update graph with newly filtered data
+    callback = CustomJS(args=dict(df=df_source, hex_df=hex_df_source), code="""
+        console.log(cb_obj.value)
+    """)
+
+    # dropdown = Dropdown(label='Genre', menu=genres)
+    # dropdown.js_on_event('menu_item_click', callback)
+
+    menu = Select(options=genres, value='Still Life', title='Genre')
+    menu.js_on_change('value', callback)
+
+    output_file('graphs/q2.html')
+
+    colors = top_10['Color'].tolist()
+    f = figure(x_range=colors, width=1000,
+               title=('Most Frequently Used Colors For: ' + current_genre))
+    f.vbar(x='Color', top='Count', color='Hex Code', source=source, width=0.9)
+    """
+    # https://github.com/bokeh/bokeh/issues/3621
+    tooltips = [
+    ('Color', '@colors'),
+    ('Count', '@count'),
+    ]
+    f.add_tools(HoverTool(tooltips=tooltips))
+    """
+
+    show(row(f, menu))
+
+
+def hover(df, hex_df):
+    """
+    has hovering and colored bars
+    """
+    print('started colors_genres')
+
+    genres = [('landscape', 'Landscape'),
+              ('animal painting', 'Animal Painting'),
+              ('Sketch and Study', 'sketch and study'),
+              ('Still Life', 'still life'),
+              ('Genre Painting', 'genre painting'),
+              ('Cityscape', 'cityscape'),
+              ('Portrait', 'portrait'),
+              ('Nude Painting', 'nude painting (nu)'),
+              ('Flower Painting', 'flower painting'),
+              ('Vanitas', 'vanitas'),
+              ('Figurative', 'figurative'),
+              ('Self-Portrait', 'self-portrait'),
+              ('Panorama', 'panorama'),
+              ('Interior', 'interior'),
+              ('Marina', 'marina'),
+              ('Religious Painting', 'religious painting'),
+              ('Cloudscape', 'cloudscape')]
+
+    current_genre = 'still life'
+
+    hex_df = hex_df.rename(columns={'Name': 'Hex Name', 'Colors': 'Hex Code'})
+    df = df.rename(columns={'Colors': 'Color'})
+
+    mask = df['Genre'] == current_genre
+    s_hex = hex_df.loc[mask, 'Hex Code']
+    s_hex = remove_color_formatting(s_hex)
+    s_colors = df.loc[mask, 'Color']
+    s_colors = remove_color_formatting(s_colors)
+
+    merged = pd.concat([s_colors, s_hex], axis=1)
+
+    merged['Count'] = merged.groupby('Color').transform('count')
+    merged = merged.drop_duplicates(subset=['Color'])
+    top_10 = merged.nlargest(10, 'Count')
+    print(top_10)
+
+    source = ColumnDataSource(top_10)
+
+    output_file('graphs/q2.html')
+
+    colors = top_10['Color'].tolist()
+    f = figure(x_range=colors, width=1000,
+               title=('Most Frequently Used Colors For: ' + current_genre))
+    f.vbar(x='Color', top='Count', color='Hex Code', source=source, width=0.9)
+
+    tooltips = [
+        ('Color', '@Color'),
+        ('Count', '@Count'),
+    ]
+    f.add_tools(HoverTool(tooltips=tooltips))
+
+    show(row(f))
+
+
+def test(df, hex_df):
+    """
+    The one I think we should use: has hovering, colored bars, and graphs for
+    all genres
+    """
+    print('started colors_genres')
+
+    # for testing, could compare count of genres with count of
+    # df['Genre'].unique()
+    genres = [('Landscape', 'landscape'),
+              ('Animal Painting', 'animal painting'),
+              ('Sketch and Study', 'sketch and study'),
+              ('Still Life', 'still life'),
+              ('Genre Painting', 'genre painting'),
+              ('Cityscape', 'cityscape'),
+              ('Portrait', 'portrait'),
+              ('Nude Painting', 'nude painting (nu)'),
+              ('Flower Painting', 'flower painting'),
+              ('Vanitas', 'vanitas'),
+              ('Figurative', 'figurative'),
+              ('Self-Portrait', 'self-portrait'),
+              ('Panorama', 'panorama'),
+              ('Interior', 'interior'),
+              ('Marina', 'marina'),
+              ('Religious Painting', 'religious painting'),
+              ('Cloudscape', 'cloudscape')]
+
+    hex_df = hex_df.rename(columns={'Name': 'Hex Name', 'Colors': 'Hex Code'})
+    df = df.rename(columns={'Colors': 'Color'})
+
+    output_file('graphs/q2.html')
+    plots = []
+    for genre in genres:
+        mask = df['Genre'] == genre[1]
+        s_hex = hex_df.loc[mask, 'Hex Code']
+        s_hex = remove_color_formatting(s_hex)
+        s_colors = df.loc[mask, 'Color']
+        s_colors = remove_color_formatting(s_colors)
+
+        merged = pd.concat([s_colors, s_hex], axis=1)
+
+        merged['Count'] = merged.groupby('Color').transform('count')
+        merged = merged.drop_duplicates(subset=['Color'])
+        top_10 = merged.nlargest(10, 'Count')
+
+        source = ColumnDataSource(top_10)
+
+        colors = top_10['Color'].tolist()
+        f = figure(x_range=colors, width=1000,
+                   title=('Most Frequently Used Colors For: ' + genre[0]))
+        f.vbar(x='Color', top='Count', color='Hex Code',
+               source=source, width=0.9)
+
+        tooltips = [
+            ('Color', '@Color'),
+            ('Count', '@Count'),
+        ]
+        f.add_tools(HoverTool(tooltips=tooltips))
+        plots.append(f)
+
+    show(column(*plots))
 
 
 def remove_color_formatting(series):
@@ -160,7 +365,8 @@ def main():
     hex_df = pd.read_csv('df.csv')
 
     # question 2 -
-    colors_genres(df, hex_df)
+    # colors_genres(df, hex_df)
+    test(df, hex_df)
 
     # question 4 - What topics did Van Gogh paint about the most?
     # most_frequent_topics()
