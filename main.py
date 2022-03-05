@@ -11,9 +11,6 @@ Van Gogh in the Age of Computers is a project that seeks to explore ____
 # about bokeh or eli5, google conda install [package] and run that and it
 # should fix it
 
-from os import remove
-from re import X
-from tkinter import Y
 import pandas as pd
 import plotly.express as px
 
