@@ -36,41 +36,26 @@ def freq_colors_per_genre(df, hex_df):
     versions of colors, and creates a single figure with bar graphs showing the
     top 10 most used colors and their counts for each genre in the dataframes.
     If a genre does not use 10 or more colors, the bar graph shows as many
-    colors as the genre uses. The figure is saved in an html file,
-    graphs/q2.html.
+    colors as the genre uses. Assumes each row in df corresponds with a row
+    in hex_df. The figure is saved in an html file, graphs/q2.html.
     """
-
-    # for testing, could compare count of genres with count of
-    # df['Genre'].unique()
-    # The genres Van Gogh painted and their corresponding term in the
-    # dataframes
-    genres = [('Landscape', 'landscape'),
-              ('Animal Painting', 'animal painting'),
-              ('Sketch and Study', 'sketch and study'),
-              ('Still Life', 'still life'),
-              ('Genre Painting', 'genre painting'),
-              ('Cityscape', 'cityscape'),
-              ('Portrait', 'portrait'),
-              ('Nude Painting', 'nude painting (nu)'),
-              ('Flower Painting', 'flower painting'),
-              ('Vanitas', 'vanitas'),
-              ('Figurative', 'figurative'),
-              ('Self-Portrait', 'self-portrait'),
-              ('Panorama', 'panorama'),
-              ('Interior', 'interior'),
-              ('Marina', 'marina'),
-              ('Religious Painting', 'religious painting'),
-              ('Cloudscape', 'cloudscape')]
-
+    # clarify difference between columns of dataframes by renaming them
     hex_df = hex_df.rename(columns={'Name': 'Hex Name', 'Colors': 'Hex Code'})
     df = df.rename(columns={'Colors': 'Color'})
 
     output_file('graphs/q2.html')
     plots = []
+
+    # creates list of genres with more than 15 paintings
+    genres_df = df.loc[:, ['Name', 'Genre']]
+    genres_df['Count'] = genres_df.groupby('Genre').transform('count')
+    genres = genres_df.loc[(genres_df['Count'] > 15), 'Genre']
+    genres = genres.unique()
+
     # goes through each genre in the file and creates bar graph
     for genre in genres:
         # filters and processes data
-        mask = df['Genre'] == genre[1]
+        mask = df['Genre'] == genre
         s_hex = hex_df.loc[mask, 'Hex Code']
         s_hex = remove_color_formatting(s_hex)
         s_colors = df.loc[mask, 'Color']
@@ -85,7 +70,7 @@ def freq_colors_per_genre(df, hex_df):
         source = ColumnDataSource(top_10)
         colors = top_10['Color'].tolist()
         f = figure(x_range=colors, width=1000,
-                   title=('Most Frequently Used Colors For: ' + genre[0]))
+                   title=('Most Frequently Used Colors For: ' + genre.title()))
         f.vbar(x='Color', top='Count', color='Hex Code',
                source=source, width=0.9)
         tooltips = [
@@ -93,6 +78,8 @@ def freq_colors_per_genre(df, hex_df):
             ('Count', '@Count'),
         ]
         f.add_tools(HoverTool(tooltips=tooltips))
+        f.title.text_font_size = '16pt'
+        f.xgrid.grid_line_color = None
         plots.append(f)
 
     # opens html file in the browser and shows all bar graphs in column layout
@@ -101,7 +88,7 @@ def freq_colors_per_genre(df, hex_df):
 
 def remove_color_formatting(series):
     """
-    Takes a pandas series where values are formatted as ('x', 'y', etc.) and
+    Takes a pandas series where values are formatted as ('x', 'y', 'z') and
     returns a series without the parentheses and quotes, and with only one
     value per cell.
     """
@@ -132,6 +119,14 @@ def most_frequent_topics():
     # graphs sorted dataframe
     fig = px.bar(top_10, x='Topic', y='Count',
                  title='Top 10 Topics in Van Gogh\'s Paintings')
+    fig.update_traces(marker_color='lightslategray')
+    fig.update_layout(title_font_size=20)
+    fig.update_layout(
+        hoverlabel=dict(
+            bgcolor="white",
+            font_size=14
+        )
+    )
     fig.show()  # semi-interactive - can hover
 
 
@@ -144,7 +139,7 @@ def main():
     freq_colors_per_genre(df, hex_df)
 
     # question 4 - What topics did Van Gogh paint about the most?
-    most_frequent_topics()
+    # most_frequent_topics()
 
 
 if __name__ == '__main__':
