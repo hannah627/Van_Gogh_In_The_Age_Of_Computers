@@ -139,7 +139,7 @@ def main():
     freq_colors_per_genre(df, hex_df)
 
     # question 4 - What topics did Van Gogh paint about the most?
-    # most_frequent_topics()
+    most_frequent_topics()
 
 
 if __name__ == '__main__':
