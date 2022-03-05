@@ -189,7 +189,7 @@ def main():
     print(calculate_weights(df_exploded, max_depth))
 
     # question 4 - What topics did Van Gogh paint about the most?
-    # most_frequent_topics()
+    most_frequent_topics()
 
 
 if __name__ == '__main__':
