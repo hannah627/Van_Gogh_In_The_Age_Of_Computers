@@ -12,6 +12,8 @@ Van Gogh in the Age of Computers is a project that seeks to explore ____
 # should fix it
 
 from os import remove
+from re import X
+from tkinter import Y
 import pandas as pd
 import plotly.express as px
 
@@ -20,13 +22,41 @@ from bokeh.plotting import figure
 from bokeh.models import HoverTool, ColumnDataSource
 from bokeh.layouts import column
 
-import eli5
-
-# import the rest of the sklearn
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.model_selection import train_test_split
-
 from query_api import query_api_topics
+from machine_learning import highest_validation_accuracy, calculate_weights
+
+
+def values_over_time(df, column_name, output_file_name):
+    """
+    DESCRIPTION, PARAMETERS, RETURNS
+    """
+    df = df[['Year', column_name]].dropna()
+    df['Year'] = pd.to_datetime(df['Year'], format='%Y')
+
+    values = df[column_name].unique()
+    # for testing, processing a large number of unique values slows the program
+    values = values[0:5]
+
+    output_file(output_file_name)
+
+    plots = []
+
+    # goes through each value in the file and creates time series
+    for value in values:
+        # filters and processes data
+        years = df['Year'].unique()
+        value_count = df[df[column_name] ==
+                         value].groupby('Year')[column_name].count()
+
+        # creates time series and adds it to plots to be displayed
+        p = figure(width=1000, height=750,
+                   title=('Use of ' + value + ' Over Time'),
+                   x_axis_type='datetime')
+        p.line(years, value_count, line_width=2)
+        plots.append(p)
+
+    # opens html file in the browser and shows all time series in column layout
+    show(column(*plots))
 
 
 def freq_colors_per_genre(df, hex_df):
@@ -133,10 +163,30 @@ def most_frequent_topics():
 def main():
     # read in data
     df = pd.read_csv('df_reduced.csv')
+    df.loc[1618, 'Year'] = '1888'
     hex_df = pd.read_csv('df.csv')
+
+    exploded_colors = remove_color_formatting(df['Colors'])
+    df_exploded = df.merge(exploded_colors, left_index=True, right_index=True,
+                           how='right')
+
+    # question 1 -
+    values_over_time(df_exploded, 'Colors_y', 'graphs/q1-1.html')
+    values_over_time(df, 'Style', 'graphs/q1-2.html')
 
     # question 2 -
     freq_colors_per_genre(df, hex_df)
+
+    # question 3 -
+    max_accuracy = highest_validation_accuracy(df_exploded)
+    max_depth = int(max_accuracy['Max Depth'].max())
+    print('Max Depth for Highest Validation Accuracy: ' +
+          str(max_depth))
+    test_accuracy = float(max_accuracy.loc[max_accuracy['Max Depth']
+                                           == max_depth, 'Test Accuracy'])
+    print('Test Accuracy at Max Depth for Highest Validation Accuracy: ' +
+          str(test_accuracy))
+    print(calculate_weights(df_exploded, max_depth))
 
     # question 4 - What topics did Van Gogh paint about the most?
     # most_frequent_topics()
