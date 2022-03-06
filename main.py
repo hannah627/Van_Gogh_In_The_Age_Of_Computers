@@ -91,6 +91,8 @@ def freq_colors_per_genre(df, hex_df):
         merged = pd.concat([s_colors, s_hex], axis=1)
         merged['Count'] = merged.groupby('Color').transform('count')
         merged = merged.drop_duplicates(subset=['Color'])
+        file_name = 'data/q2_testing_data/' + genre + '.csv'
+        merged.to_csv(file_name)  # for testing
         top_10 = merged.nlargest(10, 'Count')
 
         # creates bar graph adds it to plots to be displayed
@@ -127,15 +129,14 @@ def remove_color_formatting(series):
     return series
 
 
-def most_frequent_topics():
+def most_frequent_topics(topics):
     """
-    Queries the Met Museum API to find the most frequently used tags (topics)
-    for their collection of Van Gogh paintings, and creates a bar graph showing
-    the top ten most common topics and their counts.
+    Takes a dictionary topics where the keys are topics and the values are the
+    counts for those topics, and creates a bar graph showing the top ten most
+    common topics and their counts. If the dictionary contains less than ten
+    topics, the bar graph will have as many bars as there are topics in the
+    dictionary.
     """
-    # queries api
-    topics = query_api_topics()
-
     # converts results from querying api to dataframe
     df = pd.DataFrame(list(topics.items()))
     df.columns = ['Topic', 'Count']
@@ -162,6 +163,30 @@ def most_frequent_topics():
     # how to get those assert_equals's
 
 
+def test_most_frequent_topics():
+    """
+    Creates two smaller dictionaries and passes them to most_frequent_topics to
+    test that the most_frequent_topics function works as expected - that it
+    takes a dictionary with keys as terms and values as counts, sort them
+    greatest to least, selects the top 10 terms by count, and creates a bar
+    graph of them (and that if there are less than 10 terms in the dictionary,
+    the bar graph has as many bars as the dictionary has terms.)
+    """
+    # dictionary with less than ten terms and with counts out of order. Should
+    # create graph with 5 bars - men, women, clouds, stars, then shoes
+    test_dict_1 = {"clouds": 22, "stars": 10, "women": 84, "men": 98,
+                   "shoes": 2}
+    # dictionary with 11 terms of varying counts, to ensure only top 10 terms
+    # are graphed. Should graph cats, men, women, flower, dogs, clouds, boats,
+    # parrots, stars and shoes - ice cream should not be included
+    test_dict_2 = {"clouds": 22, "stars": 10, "women": 84, "men": 98,
+                   "shoes": 2, "boats": 13, "flowers": 41, "dogs": 29,
+                   "cats": 145, "parrots": 11, "ice cream": 1}
+
+    most_frequent_topics(test_dict_1)
+    most_frequent_topics(test_dict_2)
+
+
 def main():
     # read in data
     df = pd.read_csv('data/df_reduced.csv')
@@ -174,13 +199,14 @@ def main():
     df_exploded.to_csv('data/df_reduced_exploded.csv')  # for testing
 
     # question 1 -
-    values_over_time(df_exploded, 'Colors_y', 'graphs/q1-1.html')
-    values_over_time(df, 'Style', 'graphs/q1-2.html')
+    # values_over_time(df_exploded, 'Colors_y', 'graphs/q1-1.html')
+    # values_over_time(df, 'Style', 'graphs/q1-2.html')
 
     # question 2 -
     freq_colors_per_genre(df, hex_df)
 
     # question 3 -
+    """
     max_accuracy = highest_validation_accuracy(df_exploded)
     max_depth = int(max_accuracy['Max Depth'].max())
     print('Max Depth for Highest Validation Accuracy: ' +
@@ -190,11 +216,14 @@ def main():
     print('Test Accuracy at Max Depth for Highest Validation Accuracy: ' +
           str(test_accuracy))
     print(calculate_weights(df_exploded, max_depth))
+    """
 
     # question 4 - What topics did Van Gogh paint about the most?
-    # most_frequent_topics()
+    # topics = query_api_topics()
+    # most_frequent_topics(topics)
 
     # testing!
+    test_most_frequent_topics()
 
 
 if __name__ == '__main__':
