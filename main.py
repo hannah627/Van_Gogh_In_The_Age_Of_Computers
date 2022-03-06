@@ -157,15 +157,21 @@ def most_frequent_topics():
     fig.show()  # semi-interactive - can hover
 
 
+# def test_remove_color_formatting():
+    # would have an assert_equals statement here - maybe a few - but not sure
+    # how to get those assert_equals's
+
+
 def main():
     # read in data
-    df = pd.read_csv('df_reduced.csv')
+    df = pd.read_csv('data/df_reduced.csv')
     df.loc[1618, 'Year'] = '1888'
-    hex_df = pd.read_csv('df.csv')
+    hex_df = pd.read_csv('data/df.csv')
 
     exploded_colors = remove_color_formatting(df['Colors'])
     df_exploded = df.merge(exploded_colors, left_index=True, right_index=True,
                            how='right')
+    df_exploded.to_csv('data/df_reduced_exploded.csv')  # for testing
 
     # question 1 -
     values_over_time(df_exploded, 'Colors_y', 'graphs/q1-1.html')
@@ -186,7 +192,9 @@ def main():
     print(calculate_weights(df_exploded, max_depth))
 
     # question 4 - What topics did Van Gogh paint about the most?
-    most_frequent_topics()
+    # most_frequent_topics()
+
+    # testing!
 
 
 if __name__ == '__main__':
