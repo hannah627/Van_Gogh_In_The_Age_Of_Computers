@@ -17,7 +17,7 @@ def highest_validation_accuracy(df):
     """
     DESCRIPTION, PARAMETERS, RETURNS
     """
-    df = df[['Name', 'Colors_y', 'Year', 'Genre', 'Style']].dropna()
+    df = df[['Name', 'Color', 'Year', 'Genre', 'Style']].dropna()
 
     features = pd.get_dummies(df.loc[:, df.columns != 'Style'])
     labels = df['Style']
@@ -54,7 +54,7 @@ def calculate_weights(df, max_depth):
     """
     DESCRIPTION, PARAMETERS, RETURNS
     """
-    df = df[['Name', 'Colors_y', 'Year', 'Genre', 'Style']].dropna()
+    df = df[['Name', 'Color', 'Year', 'Genre', 'Style']].dropna()
 
     features = pd.get_dummies(df.loc[:, df.columns != 'Style'])
     labels = df['Style']
