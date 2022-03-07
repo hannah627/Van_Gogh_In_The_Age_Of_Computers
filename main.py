@@ -102,7 +102,7 @@ def freq_colors_per_genre(df):
     genres_df = df.loc[:, ['Name', 'Genre']]
     genres_df['Count'] = genres_df.groupby('Genre').transform('count')
     genres = genres_df.loc[(genres_df['Count'] > 15), 'Genre']
-    genres = genres.unique()
+    genres = df['Genre'].unique()
 
     # goes through each genre in the file and creates bar graph
     for genre in genres:
@@ -242,12 +242,12 @@ def main():
     """
 
     # question 4 - What topics did Van Gogh paint about the most?
-    # topics = query_api_topics()
-    # most_frequent_topics(topics, 'Most Frequent Topics in Van Gogh\'s \
-    #                      Paintings', 'graphs/q4.html')
+    topics = query_api_topics()
+    most_frequent_topics(topics, 'Most Frequent Topics in Van Gogh\'s \
+ Paintings', 'graphs/q4.html')
 
     # testing!
-    test_most_frequent_topics()
+    # test_most_frequent_topics()
 
 
 if __name__ == '__main__':

@@ -1,0 +1,85 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+    
+      <meta charset="utf-8">
+      <title>Bokeh Plot</title>
+      
+      
+        
+          
+        
+        
+          
+        <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-2.4.2.min.js"></script>
+        <script type="text/javascript">
+            Bokeh.set_log_level("info");
+        </script>
+        
+      
+      
+    
+  </head>
+  
+  
+  <body>
+    
+      
+        
+          
+          
+            
+              <div class="bk-root" id="1f4d2cf4-ed38-4d8e-9123-edb61940f570" data-root-id="3912"></div>
+            
+          
+        
+      
+      
+        <script type="application/json" id="4082">
+          {"2ecd1947-1a10-4eec-98c1-208f50bfd774":{"defs":[],"roots":{"references":[{"attributes":{},"id":"3958","type":"AllLabels"},{"attributes":{"data":{"Count":[66,51,33,31,20,18,15,12,8,8],"Topic":["Women","Men","Landscapes","Portraits","Still Life","Flowers","Boats","Female Nudes","Gardens","Children"],"index":[3,11,7,1,5,6,30,26,20,21]},"selected":{"id":"3960"},"selection_policy":{"id":"3959"}},"id":"3911","type":"ColumnDataSource"},{"attributes":{},"id":"3935","type":"HelpTool"},{"attributes":{},"id":"3954","type":"BasicTickFormatter"},{"attributes":{"coordinates":null,"formatter":{"id":"3954"},"group":null,"major_label_policy":{"id":"3955"},"ticker":{"id":"3927"}},"id":"3926","type":"LinearAxis"},{"attributes":{"axis":{"id":"3923"},"coordinates":null,"grid_line_color":null,"group":null,"ticker":null},"id":"3925","type":"Grid"},{"attributes":{},"id":"3927","type":"BasicTicker"},{"attributes":{},"id":"3957","type":"CategoricalTickFormatter"},{"attributes":{"axis":{"id":"3926"},"coordinates":null,"dimension":1,"group":null,"ticker":null},"id":"3929","type":"Grid"},{"attributes":{"below":[{"id":"3923"}],"center":[{"id":"3925"},{"id":"3929"}],"left":[{"id":"3926"}],"renderers":[{"id":"3948"}],"title":{"id":"3913"},"toolbar":{"id":"3937"},"width":1000,"x_range":{"id":"3915"},"x_scale":{"id":"3919"},"y_range":{"id":"3917"},"y_scale":{"id":"3921"}},"id":"3912","subtype":"Figure","type":"Plot"},{"attributes":{},"id":"3931","type":"WheelZoomTool"},{"attributes":{"fill_color":{"value":"#1f77b4"},"line_color":{"value":"#1f77b4"},"top":{"field":"Count"},"width":{"value":0.9},"x":{"field":"Topic"}},"id":"3945","type":"VBar"},{"attributes":{},"id":"3921","type":"LinearScale"},{"attributes":{},"id":"3955","type":"AllLabels"},{"attributes":{},"id":"3959","type":"UnionRenderers"},{"attributes":{},"id":"3924","type":"CategoricalTicker"},{"attributes":{},"id":"3960","type":"Selection"},{"attributes":{},"id":"3917","type":"DataRange1d"},{"attributes":{},"id":"3933","type":"SaveTool"},{"attributes":{"factors":["Women","Men","Landscapes","Portraits","Still Life","Flowers","Boats","Female Nudes","Gardens","Children"]},"id":"3915","type":"FactorRange"},{"attributes":{"fill_alpha":{"value":0.2},"fill_color":{"value":"#1f77b4"},"hatch_alpha":{"value":0.2},"line_alpha":{"value":0.2},"line_color":{"value":"#1f77b4"},"top":{"field":"Count"},"width":{"value":0.9},"x":{"field":"Topic"}},"id":"3947","type":"VBar"},{"attributes":{},"id":"3934","type":"ResetTool"},{"attributes":{"coordinates":null,"group":null,"text":"Most Frequent Topics in Van Gogh's  Paintings","text_font_size":"16pt"},"id":"3913","type":"Title"},{"attributes":{"coordinates":null,"formatter":{"id":"3957"},"group":null,"major_label_policy":{"id":"3958"},"ticker":{"id":"3924"}},"id":"3923","type":"CategoricalAxis"},{"attributes":{},"id":"3930","type":"PanTool"},{"attributes":{"bottom_units":"screen","coordinates":null,"fill_alpha":0.5,"fill_color":"lightgrey","group":null,"left_units":"screen","level":"overlay","line_alpha":1.0,"line_color":"black","line_dash":[4,4],"line_width":2,"right_units":"screen","syncable":false,"top_units":"screen"},"id":"3936","type":"BoxAnnotation"},{"attributes":{"overlay":{"id":"3936"}},"id":"3932","type":"BoxZoomTool"},{"attributes":{},"id":"3919","type":"CategoricalScale"},{"attributes":{"callback":null,"tooltips":[["Topic","@Topic"],["Count","@Count"]]},"id":"3950","type":"HoverTool"},{"attributes":{"source":{"id":"3911"}},"id":"3949","type":"CDSView"},{"attributes":{"coordinates":null,"data_source":{"id":"3911"},"glyph":{"id":"3945"},"group":null,"hover_glyph":null,"muted_glyph":{"id":"3947"},"nonselection_glyph":{"id":"3946"},"view":{"id":"3949"}},"id":"3948","type":"GlyphRenderer"},{"attributes":{"tools":[{"id":"3930"},{"id":"3931"},{"id":"3932"},{"id":"3933"},{"id":"3934"},{"id":"3935"},{"id":"3950"}]},"id":"3937","type":"Toolbar"},{"attributes":{"fill_alpha":{"value":0.1},"fill_color":{"value":"#1f77b4"},"hatch_alpha":{"value":0.1},"line_alpha":{"value":0.1},"line_color":{"value":"#1f77b4"},"top":{"field":"Count"},"width":{"value":0.9},"x":{"field":"Topic"}},"id":"3946","type":"VBar"}],"root_ids":["3912"]},"title":"Bokeh Application","version":"2.4.2"}}
+        </script>
+        <script type="text/javascript">
+          (function() {
+            const fn = function() {
+              Bokeh.safely(function() {
+                (function(root) {
+                  function embed_document(root) {
+                    
+                  const docs_json = document.getElementById('4082').textContent;
+                  const render_items = [{"docid":"2ecd1947-1a10-4eec-98c1-208f50bfd774","root_ids":["3912"],"roots":{"3912":"1f4d2cf4-ed38-4d8e-9123-edb61940f570"}}];
+                  root.Bokeh.embed.embed_items(docs_json, render_items);
+                
+                  }
+                  if (root.Bokeh !== undefined) {
+                    embed_document(root);
+                  } else {
+                    let attempts = 0;
+                    const timer = setInterval(function(root) {
+                      if (root.Bokeh !== undefined) {
+                        clearInterval(timer);
+                        embed_document(root);
+                      } else {
+                        attempts++;
+                        if (attempts > 100) {
+                          clearInterval(timer);
+                          console.log("Bokeh: ERROR: Unable to run BokehJS code because BokehJS library is missing");
+                        }
+                      }
+                    }, 10, root)
+                  }
+                })(window);
+              });
+            };
+            if (document.readyState != "loading") fn();
+            else document.addEventListener("DOMContentLoaded", fn);
+          })();
+        </script>
+    
+  </body>
+  
+</html>
