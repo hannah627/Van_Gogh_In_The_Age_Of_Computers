@@ -53,6 +53,39 @@ def remove_color_formatting(series):
     return series
 
 
+def list_unique_from_file(df, col, x):
+    """
+    Takes a pandas dataframe df and returns a list of the unique values from a
+    given column col where those values appear more than x times in the
+    dataframe.
+    """
+    genres_df = df.loc[:, ['Name', col]]
+    genres_df['Count'] = genres_df.groupby(col).transform('count')
+    genres = genres_df.loc[(genres_df['Count'] > x), col]
+    genres = genres.unique()
+    return genres
+
+
+def format_bar_graph(f, col):
+    """
+    Takes a bokeh figure f and a column name col and returns the bokeh figure
+    with added formatting, including tooltips for col, an increased title
+    size of 16pt, and no vertical gridlines.
+    """
+    at_col = "@" + col
+    tooltips = [
+        (col, at_col),
+        ('Count', '@Count'),
+    ]
+    f.add_tools(HoverTool(tooltips=tooltips))
+
+    f.title.text_font_size = '16pt'
+    f.xaxis.major_label_text_font_size = "11.5pt"
+    f.xgrid.grid_line_color = None
+
+    return f
+
+
 def values_over_time(df, column_name, output_file_name):
     """
     DESCRIPTION, PARAMETERS, RETURNS
@@ -86,34 +119,22 @@ def values_over_time(df, column_name, output_file_name):
     show(column(*plots))
 
 
-def freq_colors_per_genre(df):
+def freq_colors_per_genre(df, genres):
     """
     Takes a pandas dataframe df containing genre, color, and hex code
-    information for paintings, and creates a single figure with bar graphs
-    showing the top 10 most used colors and their counts for each genre in the
-    dataframe. If a genre does not use 10 or more colors, the bar graph shows
-    as many colors as the genre uses. The figure should open in the browser
+    information for paintings, as well as a list of genres genres, and creates
+    a single figure with bar graphs showing the top 10 most used colors and
+    their counts for each genre in the dataframe. Each bar is encoded with
+    the first occuring (if there are multiple) hex code corresponding with that
+    color. If a genre does not use 10 or more colors, the bar graph shows as
+    many colors as the genre uses. The figure should open in the browser
     automatically, but is also saved in an html file, graphs/q2.html.
     """
     output_file('graphs/q2.html')
     plots = []
 
-    # creates list of genres with more than 15 paintings
-    genres_df = df.loc[:, ['Name', 'Genre']]
-    genres_df['Count'] = genres_df.groupby('Genre').transform('count')
-    genres = genres_df.loc[(genres_df['Count'] > 15), 'Genre']
-    genres = df['Genre'].unique()
-
-    # goes through each genre in the file and creates bar graph
     for genre in genres:
         # filters data for genre and counts colors
-        # please note: there are sometimes mutliple hex codes per color (i.e.
-        # "gray" might have hex codes of #D9D8D7, #BFBFBD, #262522, etc.).
-        # Since hex codes are only being used to give a sense of what the color
-        # being referenced in the graph might look like, this method selects
-        # only the first hex code for a color, meaning the hex codes for colors
-        # may differ between graphs (and for example, the bar for "gray" may
-        # also look different between graphs).
         mask = df['Genre'] == genre
         temp_df = df.loc[mask, ['Color', 'Hex Code']]
         temp_df['Count'] = temp_df.groupby('Color').transform('count')
@@ -134,13 +155,10 @@ def freq_colors_per_genre(df):
                    title=('Most Frequently Used Colors For: ' + genre.title()))
         f.vbar(x='Color', top='Count', color='Hex Code',
                source=source, width=0.9)
-        tooltips = [
-            ('Color', '@Color'),
-            ('Count', '@Count'),
-        ]
-        f.add_tools(HoverTool(tooltips=tooltips))
-        f.title.text_font_size = '16pt'
-        f.xgrid.grid_line_color = None
+
+        # adds formating to the graph - changes title size, adds tooltips, etc.
+        f = format_bar_graph(f, 'Color')
+
         plots.append(f)
 
     # opens html file in the browser and shows all bar graphs in column layout
@@ -170,13 +188,9 @@ def most_frequent_topics(topics, title, filename):
 
     f = figure(x_range=topic, width=1000, title=(title))
     f.vbar(x='Topic', top='Count', source=source, width=0.9)
-    tooltips = [
-        ('Topic', '@Topic'),
-        ('Count', '@Count'),
-    ]
-    f.add_tools(HoverTool(tooltips=tooltips))
-    f.title.text_font_size = '16pt'
-    f.xgrid.grid_line_color = None
+
+    # adds formating to the graph - changes title size, adds tooltips, etc.
+    f = format_bar_graph(f, 'Topic')
 
     show(f)
 
@@ -225,8 +239,9 @@ def main():
     # values_over_time(df_colors_hex, 'Color', 'graphs/q1-1.html')
     # values_over_time(df, 'Style', 'graphs/q1-2.html')
 
-    # question 2 -
-    freq_colors_per_genre(df_colors_hex)
+    # question 2 - What colors were used most in each genre?
+    genres = list_unique_from_file(df, 'Genre', 15)
+    freq_colors_per_genre(df_colors_hex, genres)
 
     # question 3 -
     """
@@ -242,9 +257,9 @@ def main():
     """
 
     # question 4 - What topics did Van Gogh paint about the most?
-    topics = query_api_topics()
+    topics, total = query_api_topics()
     most_frequent_topics(topics, 'Most Frequent Topics in Van Gogh\'s \
- Paintings', 'graphs/q4.html')
+Paintings', 'graphs/q4.html')
 
     # testing!
     # test_most_frequent_topics()

@@ -21,6 +21,7 @@ def query_api_topics():
     """
     print('started querying api - this may take a while')
     terms = {}
+    total = 0
 
     paintings_ids = requests.get(MET_MUSEUM_API + '/search?q=Van_Gogh')
     for id in paintings_ids.json()['objectIDs']:
@@ -31,5 +32,7 @@ def query_api_topics():
                 if term in terms:
                     terms[term] += 1
                 else:
+                    total += 1
                     terms[term] = 1
-    return terms
+    print(total)
+    return (terms, total)
