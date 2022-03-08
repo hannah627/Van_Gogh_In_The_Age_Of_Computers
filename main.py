@@ -15,6 +15,8 @@ from bokeh.layouts import column
 from query_api import query_api_topics
 from machine_learning import highest_validation_accuracy, calculate_weights
 
+from cse163_utils import assert_equals
+
 
 def process_data(df, hex_df):
     """
@@ -195,20 +197,28 @@ def most_frequent_topics(topics, title, filename):
     show(f)
 
 
-# def test_remove_color_formatting():
-    # would have an assert_equals statement here - maybe a few - but not sure
-    # how to get those assert_equals's
+def test_remove_color_formatting():
+    """
+    Tests the remove_color_formatting function by creating strings, passing
+    them to the function, and ensuring the function removes any formatting
+    given.
+    """
+    test_series_1 = pd.Series(['(', ')'])
+    assert_equals(pd.Series(['', '']), remove_color_formatting(test_series_1))
 
 
 def test_most_frequent_topics():
     """
-    Creates two smaller dictionaries and passes them to most_frequent_topics to
-    test that the most_frequent_topics function works as expected - that it
-    takes a dictionary with keys as terms and values as counts, sort them
-    greatest to least, selects the top 10 terms by count, and creates a bar
-    graph of them (and that if there are less than 10 terms in the dictionary,
-    the bar graph has as many bars as the dictionary has terms.) Graphs should
-    open in browser automatically, or can be accessed in graphs/q4_tests.
+    Tests the most_frequent_topics function works as expected by creating two
+    smaller dictionaries and passing them to most_frequent_topics. Expected
+    results are that it takes a dictionary with keys as terms and values as
+    counts, sorts them greatest to least, selects the top 10 terms by count,
+    and creates a bar graph of them (and that if there are less than 10 terms
+    in the dictionary, the bar graph has as many bars as the dictionary has
+    terms.) Smaller dictionaries were used to ensure the function works on
+    inputs other than the specific response from querying the Met Museum API.
+    Graphs should open in browser automatically, or can be accessed in
+    graphs/q4_tests.
     """
     # dictionary with less than ten terms and with counts out of order. Should
     # create graph with 5 bars - men, women, clouds, stars, then shoes
@@ -226,6 +236,7 @@ def test_most_frequent_topics():
     most_frequent_topics(test_dict_2, 'Test 2: 11 Topics',
                          'graphs/q4_tests/test2.html')
 
+
 def main():
     # read in data
     df = pd.read_csv('data/df_reduced.csv')
@@ -239,10 +250,8 @@ def main():
     # values_over_time(df, 'Style', 'graphs/q1-2.html')
 
     # question 2 - What colors were used most in each genre?
-    genres = list_unique_from_file(df, 'Genre', 15)
-    freq_colors_per_genre(df_colors_hex, genres)
-
-    test_most_frequent_topics()
+    # genres = list_unique_from_file(df, 'Genre', 15)
+    # freq_colors_per_genre(df_colors_hex, genres)
 
     # question 3 -
     """
@@ -266,6 +275,7 @@ Paintings', 'graphs/q4.html')
 
     # testing!
     # test_most_frequent_topics()
+    # test_remove_color_formatting()
 
 
 if __name__ == '__main__':
