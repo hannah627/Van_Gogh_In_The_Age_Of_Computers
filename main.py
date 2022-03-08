@@ -226,7 +226,6 @@ def test_most_frequent_topics():
     most_frequent_topics(test_dict_2, 'Test 2: 11 Topics',
                          'graphs/q4_tests/test2.html')
 
-
 def main():
     # read in data
     df = pd.read_csv('data/df_reduced.csv')
@@ -243,6 +242,8 @@ def main():
     genres = list_unique_from_file(df, 'Genre', 15)
     freq_colors_per_genre(df_colors_hex, genres)
 
+    test_most_frequent_topics()
+
     # question 3 -
     """
     max_accuracy = highest_validation_accuracy(df_colors_hex)
@@ -257,9 +258,11 @@ def main():
     """
 
     # question 4 - What topics did Van Gogh paint about the most?
+    """
     topics, total = query_api_topics()
     most_frequent_topics(topics, 'Most Frequent Topics in Van Gogh\'s \
 Paintings', 'graphs/q4.html')
+    """
 
     # testing!
     # test_most_frequent_topics()
