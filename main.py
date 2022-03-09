@@ -6,6 +6,7 @@ Van Gogh in the Age of Computers is a project that seeks to explore ____
 """
 
 import pandas as pd
+import numpy
 
 from bokeh.io import output_file, show
 from bokeh.plotting import figure
@@ -32,7 +33,7 @@ def process_data(df, hex_df):
     exploded_colors = remove_color_formatting(df['Colors'])
     df_exploded = df.merge(exploded_colors, left_index=True, right_index=True,
                            how='right')
-    df_exploded.to_csv('data/df_reduced_exploded.csv')  # for testing
+    df_exploded.to_csv('data/df_testing.csv')  # for testing
 
     exploded_hex = remove_color_formatting(hex_df['Hex Code'])
     df_colors_hex = pd.concat([df_exploded, exploded_hex], axis=1)
@@ -54,19 +55,6 @@ def remove_color_formatting(series):
     series = series.str.split(', ')
     series = series.explode()
     return series
-
-
-def list_unique_from_file(df, col, x):
-    """
-    Takes a pandas dataframe df and returns a list of the unique values from a
-    given column col where those values appear more than x times in the
-    dataframe.
-    """
-    genres_df = df.loc[:, ['Name', col]]
-    genres_df['Count'] = genres_df.groupby(col).transform('count')
-    genres = genres_df.loc[(genres_df['Count'] > x), col]
-    genres = genres.unique()
-    return genres
 
 
 def format_bar_graph(f, col):
@@ -187,21 +175,31 @@ def styles_over_time(df):
 def freq_colors_per_genre(df, genres):
     """
     Takes a pandas dataframe df containing genre, color, and hex code
-    information for paintings, as well as a list of genres genres, and creates
-    a single figure with bar graphs showing the top 10 most used colors and
-    their counts for each genre in the dataframe. Each bar is encoded with
-    the first occuring (if there are multiple) hex code corresponding with that
-    color. If a genre does not use 10 or more colors, the bar graph shows as
-    many colors as the genre uses. The figure should open in the browser
-    automatically, but is also saved in an html file, graphs/q2.html.
+    information for paintings and creates a single figure with bar graphs
+    showing the top 10 most used colors and their counts for each genre in the
+    dataframe. Each bar is encoded with the first occuring (if there are
+    multiple) hex code corresponding with that color. If a genre does not use
+    10 or more colors, the bar graph shows as many colors as the genre uses.
+    The figure should open in the browser automatically, but is also saved in
+    an html file, graphs/q2.html.
     """
+    # creates list of unique genres in the dataframe
+    genres_df = df.loc[:, ['Name', 'Genre']]
+    genres_df['Count'] = genres_df.groupby('Genre').transform('count')
+    genres = genres_df.loc[(genres_df['Count'] >= 15), 'Genre']
+    genres = genres.unique()
+    genres = numpy.insert(genres, 0, 'all')  # so we can look at all genres too
+
     output_file('graphs/q2.html')
     plots = []
 
     for genre in genres:
         # filters data for genre and counts colors
-        mask = df['Genre'] == genre
-        temp_df = df.loc[mask, ['Color', 'Hex Code']]
+        if (genre != 'all'):
+            mask = df['Genre'] == genre
+            temp_df = df.loc[mask, ['Color', 'Hex Code']]
+        else:
+            temp_df = df.loc[:, ['Color', 'Hex Code']]
         temp_df['Count'] = temp_df.groupby('Color').transform('count')
         temp_df = temp_df.drop_duplicates(subset=['Color'])
 
@@ -216,7 +214,7 @@ def freq_colors_per_genre(df, genres):
         # creates bar graph of the colors and adds it to plots to be displayed
         source = ColumnDataSource(top_10)
         colors = top_10['Color'].tolist()
-        f = figure(x_range=colors, width=1000,
+        f = figure(x_range=colors, width=1200,
                    title=('Most Frequently Used Colors For: ' + genre.title()))
         f.vbar(x='Color', top='Count', color='Hex Code',
                source=source, width=0.9)
@@ -265,6 +263,7 @@ def test_remove_color_formatting():
     Tests the remove_color_formatting function by creating strings, passing
     them to the function, and ensuring the function removes any formatting
     given.
+    Can we turn series to lists to get this to work??
     """
     test_series_1 = pd.Series(['(', ')'])
     assert_equals(pd.Series(['', '']), remove_color_formatting(test_series_1))
@@ -313,8 +312,7 @@ def main():
     styles_over_time(df)
 
     # question 2 - What colors were used most in each genre?
-    # genres = list_unique_from_file(df, 'Genre', 15)
-    # freq_colors_per_genre(df_colors_hex, genres)
+    freq_colors_per_genre(df_colors_hex)
 
     # question 3 -
     """
