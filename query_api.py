@@ -1,6 +1,6 @@
 """
 Hannah Burrows and Sabrina Fang
-CSE 163 Section AB and SABRINA's SECTION
+CSE 163 Section AB and AC
 
 This module contains all the code involving dealing with the Met Museum API
 (documentation found at https://metmuseum.github.io/).

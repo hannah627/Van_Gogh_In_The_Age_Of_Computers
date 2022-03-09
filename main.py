@@ -1,6 +1,6 @@
 """
 Hannah Burrows and Sabrina Fang
-CSE 163 Section AB and SABRINA's SECTION
+CSE 163 Section AB and AC
 
 Van Gogh in the Age of Computers is a project that seeks to explore ____
 """
@@ -37,6 +37,7 @@ def process_data(df, hex_df):
     exploded_hex = remove_color_formatting(hex_df['Hex Code'])
     df_colors_hex = pd.concat([df_exploded, exploded_hex], axis=1)
     df_colors_hex = df_colors_hex.rename(columns={'Colors_y': 'Color'})
+    df_colors_hex['Year'] = pd.to_datetime(df['Year'], format='%Y')
 
     return df_colors_hex
 
@@ -82,39 +83,55 @@ def format_bar_graph(f, col):
     f.add_tools(HoverTool(tooltips=tooltips))
 
     f.title.text_font_size = '16pt'
-    f.xaxis.major_label_text_font_size = "11.5pt"
+    f.xaxis.major_label_text_font_size = '11.5pt'
     f.xgrid.grid_line_color = None
 
     return f
 
 
-def values_over_time(df, column_name, output_file_name):
+def colors_over_time(df):
     """
     DESCRIPTION, PARAMETERS, RETURNS
     """
-    df = df[['Year', column_name]].dropna()
-    df['Year'] = pd.to_datetime(df['Year'], format='%Y')
+    # index 0 (inclusive) to 5 (exclusive) for testing purposes
+    colors = df['Color'].unique()
+    colors = colors[0:5]
 
-    values = df[column_name].unique()
-    # for testing, processing a large number of unique values slows the program
-    values = values[0:5]
-
-    output_file(output_file_name)
-
+    output_file('graphs/q1-1.html')
     plots = []
 
-    # goes through each value in the file and creates time series
-    for value in values:
-        # filters and processes data
-        years = df['Year'].unique()
-        value_count = df[df[column_name] ==
-                         value].groupby('Year')[column_name].count()
+    # goes through each color in the file and creates time series
+    for color in colors:
+        # filters data for color and counts
+        # the number of times color is used over time
+        color_count = df.loc[df['Color'] == color,
+                             ['Year', 'Color', 'Hex Code']]
+        color_count['Count'] = \
+            color_count.groupby('Year')['Color'].transform('count')
+        hex_code = color_count['Hex Code'].iloc[0]
+        source = ColumnDataSource(color_count)
 
-        # creates time series and adds it to plots to be displayed
+        # creates time series of the number of time color is used
+        # and adds it to plots to be displayed
         p = figure(width=1000, height=750,
-                   title=('Use of ' + value + ' Over Time'),
+                   title=('Use of ' + color + ' Over Time'),
+                   x_axis_label='Year',
+                   y_axis_label='Count',
                    x_axis_type='datetime')
-        p.line(years, value_count, line_width=2)
+        p.line(x='Year', y='Count',
+               color=hex_code, alpha=1, source=source)
+
+        # adds formating to the graph - changes title size, adds tooltips, etc.
+        p.add_tools(HoverTool(tooltips=[('Year', '@Year{%F}'),
+                                        ('Count', '@Count')],
+                              formatters={'@Year': 'datetime'},
+                              mode='vline'))
+        p.title.text_font_size = '14pt'
+        p.xaxis.major_label_text_font_size = '11.5pt'
+        p.yaxis.major_label_text_font_size = '11.5pt'
+        p.xaxis.axis_label_text_font_size = '11.5pt'
+        p.yaxis.axis_label_text_font_size = '11.5pt'
+
         plots.append(p)
 
     # opens html file in the browser and shows all time series in column layout
@@ -246,7 +263,7 @@ def main():
     df_colors_hex = process_data(df, hex_df)
 
     # question 1 -
-    # values_over_time(df_colors_hex, 'Color', 'graphs/q1-1.html')
+    colors_over_time(df_colors_hex)
     # values_over_time(df, 'Style', 'graphs/q1-2.html')
 
     # question 2 - What colors were used most in each genre?

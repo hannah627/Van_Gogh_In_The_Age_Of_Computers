@@ -1,6 +1,6 @@
 """
 Hannah Burrows and Sabrina Fang
-CSE 163 Section AB and SABRINA's SECTION
+CSE 163 Section AB and AC
 
 DESCRIPTION
 """
