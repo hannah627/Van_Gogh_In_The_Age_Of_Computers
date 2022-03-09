@@ -14,7 +14,7 @@ from bokeh.models import HoverTool, ColumnDataSource
 from bokeh.layouts import column
 
 from query_api import query_api_topics
-from machine_learning import highest_validation_accuracy, calculate_weights
+from machine_learning import best_depth, sorted_feature_importances
 
 from cse163_utils import assert_equals
 
@@ -38,7 +38,6 @@ def process_data(df, hex_df):
     exploded_hex = remove_color_formatting(hex_df['Hex Code'])
     df_colors_hex = pd.concat([df_exploded, exploded_hex], axis=1)
     df_colors_hex = df_colors_hex.rename(columns={'Colors_y': 'Color'})
-    df_colors_hex['Year'] = pd.to_datetime(df['Year'], format='%Y')
 
     return df_colors_hex
 
@@ -57,16 +56,15 @@ def remove_color_formatting(series):
     return series
 
 
-def format_bar_graph(f, col):
+def format_bar_graph(f, x_axis_column, y_axis_column):
     """
     Takes a bokeh figure f and a column name col and returns the bokeh figure
     with added formatting, including tooltips for col, an increased title
     size of 16pt, and no vertical gridlines.
     """
-    at_col = "@" + col
     tooltips = [
-        (col, at_col),
-        ('Count', '@Count'),
+        (x_axis_column, ('@' + x_axis_column)),
+        (y_axis_column, ('@{' + y_axis_column + '}')),
     ]
     f.add_tools(HoverTool(tooltips=tooltips))
 
@@ -80,13 +78,13 @@ def format_bar_graph(f, col):
 def format_time_series(p, column):
     tooltips = [
         ('Year', '@Year{%F}'),
-        (column, ('@' + column))
+        (column, '@' + column)
     ]
     p.add_tools(HoverTool(tooltips=tooltips,
                           formatters={'@Year': 'datetime'},
                           mode='vline'))
 
-    p.title.text_font_size = '14pt'
+    p.title.text_font_size = '16pt'
     p.xaxis.major_label_text_font_size = '11pt'
     p.yaxis.major_label_text_font_size = '11pt'
     p.xaxis.axis_label_text_font_size = '11.5pt'
@@ -99,6 +97,8 @@ def colors_over_time(df):
     """
     DESCRIPTION, PARAMETERS, RETURNS
     """
+    df['Year'] = pd.to_datetime(df['Year'], format='%Y')
+
     # index 0 (inclusive) to 5 (exclusive) for testing purposes
     colors = df['Color'].unique()
     colors = colors[0:5]
@@ -119,10 +119,10 @@ def colors_over_time(df):
 
         # creates time series of the number of times color is used
         # and adds it to plots to be displayed
-        p = figure(width=1000, height=750,
+        p = figure(width=1000,
                    title=('Use of ' + color + ' Over Time'),
                    x_axis_label='Year',
-                   y_axis_label='Count',
+                   y_axis_label=(color + ' Count'),
                    x_axis_type='datetime')
         p.line('Year', 'Count', color=hex_code,
                alpha=1, source=source)
@@ -137,17 +137,21 @@ def colors_over_time(df):
 
 
 def styles_over_time(df):
+
     """
     DESCRIPTION, PARAMETERS, RETURNS
     """
+    df['Year'] = pd.to_datetime(df['Year'], format='%Y')
+
     output_file('graphs/q1-2.html')
 
-    p = figure(width=1000, height=750,
+    p = figure(width=1000,
                title=('Styles Over Time'),
                x_axis_label='Year',
-               y_axis_label='Count',
+               y_axis_label='Style Count',
                x_axis_type='datetime')
 
+    # lines colors that accomodate colorblindness
     colors = ['#DC267F', '#785EF0', '#648FFF', '#FE6100', '#FFB000']
 
     # goes through each style in the file and creates time series
@@ -172,7 +176,7 @@ def styles_over_time(df):
     show(p)
 
 
-def freq_colors_per_genre(df, genres):
+def freq_colors_per_genre(df):
     """
     Takes a pandas dataframe df containing genre, color, and hex code
     information for paintings and creates a single figure with bar graphs
@@ -220,12 +224,36 @@ def freq_colors_per_genre(df, genres):
                source=source, width=0.9)
 
         # adds formating to the graph - changes title size, adds tooltips, etc.
-        f = format_bar_graph(f, 'Color')
+        f = format_bar_graph(f, 'Color', 'Count')
 
         plots.append(f)
 
     # opens html file in the browser and shows all bar graphs in column layout
     show(column(*plots))
+
+
+def top_ten_importances(feature_importances):
+    """
+    DESCRIPTION, PARAMETERS, RETURNS
+    """
+    top_10 = feature_importances[0:10]
+
+    data = []
+    for feature, importance in top_10:
+        feature = feature.replace('_', ': ')
+        data.append({'Feature': feature,
+                     'Validation Accuracy': importance})
+    data = pd.DataFrame(data)
+    source = ColumnDataSource(data)
+
+    f = figure(x_range=data['Feature'].tolist(), width=1200,
+               title='Top 10 Features By Importance')
+    f.vbar(x='Feature', top='Validation Accuracy',
+           width=0.9, source=source)
+
+    f = format_bar_graph(f, 'Feature', 'Validation Accuracy')
+
+    show(f)
 
 
 def most_frequent_topics(topics, title, filename):
@@ -253,7 +281,7 @@ def most_frequent_topics(topics, title, filename):
     f.vbar(x='Topic', top='Count', source=source, width=0.9)
 
     # adds formating to the graph - changes title size, adds tooltips, etc.
-    f = format_bar_graph(f, 'Topic')
+    f = format_bar_graph(f, 'Topic', 'Count')
 
     show(f)
 
@@ -309,23 +337,18 @@ def main():
 
     # question 1 -
     # colors_over_time(df_colors_hex)
-    styles_over_time(df)
+    # styles_over_time(df)
 
     # question 2 - What colors were used most in each genre?
-    freq_colors_per_genre(df_colors_hex)
+    # freq_colors_per_genre(df_colors_hex)
 
     # question 3 -
-    """
-    max_accuracy = highest_validation_accuracy(df_colors_hex)
-    max_depth = int(max_accuracy['Max Depth'].max())
-    print('Max Depth for Highest Validation Accuracy: ' +
-          str(max_depth))
-    test_accuracy = float(max_accuracy.loc[max_accuracy['Max Depth']
-                                           == max_depth, 'Test Accuracy'])
-    print('Test Accuracy at Max Depth for Highest Validation Accuracy: ' +
-          str(test_accuracy))
-    print(calculate_weights(df_colors_hex, max_depth))
-    """
+    accuracy_at_depth = best_depth(df_colors_hex)
+    print('Predicting test set using the depth of: ' +
+          str(accuracy_at_depth[0]))
+    print('Test set accuracy: ' + str(accuracy_at_depth[1]))
+    top_ten_importances(sorted_feature_importances(df_colors_hex,
+                                                   accuracy_at_depth[0]))
 
     # question 4 - What topics did Van Gogh paint about the most?
     """
