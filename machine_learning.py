@@ -10,26 +10,28 @@ from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score
 
-import eli5
+
+def split_train_test(df):
+    filtered = df[['Name', 'Color', 'Year', 'Genre', 'Style']].dropna()
+
+    features = pd.get_dummies(filtered.loc[:, filtered.columns != 'Style'])
+    labels = filtered['Style']
+
+    return train_test_split(features, labels, test_size=0.2)
 
 
-def highest_validation_accuracy(df):
+def best_depth(df):
     """
     DESCRIPTION, PARAMETERS, RETURNS
     """
-    df = df[['Name', 'Color', 'Year', 'Genre', 'Style']].dropna()
-
-    features = pd.get_dummies(df.loc[:, df.columns != 'Style'])
-    labels = df['Style']
-
     features_train, features_test, labels_train, labels_test = \
-        train_test_split(features, labels, test_size=0.2)
+        split_train_test(df)
 
     features_val, features_test, labels_val, labels_test = \
         train_test_split(features_test, labels_test, test_size=0.5)
 
     accuracies = []
-    for i in range(1, 50):
+    for i in range(1, 25):
         model = DecisionTreeClassifier(max_depth=i)
         model.fit(features_train, labels_train)
 
@@ -46,23 +48,21 @@ def highest_validation_accuracy(df):
                            'Test Accuracy': test_accuracy})
 
     accuracies = pd.DataFrame(accuracies)
-    max_accuracy = accuracies['Validation Accuracy'].max()
-    return accuracies[accuracies['Validation Accuracy'] == max_accuracy]
+    best_depth = accuracies.nlargest(1, 'Validation Accuracy'
+                                     )['Max Depth'].iloc[0]
+    accuracy_at_depth = float(accuracies.loc[accuracies['Max Depth'] == best_depth,
+                                             'Test Accuracy'])
+    return best_depth, accuracy_at_depth
 
 
-def calculate_weights(df, max_depth):
-    """
-    DESCRIPTION, PARAMETERS, RETURNS
-    """
-    df = df[['Name', 'Color', 'Year', 'Genre', 'Style']].dropna()
-
-    features = pd.get_dummies(df.loc[:, df.columns != 'Style'])
-    labels = df['Style']
-
+def sorted_feature_importances(df, max_depth):
     features_train, features_test, labels_train, labels_test = \
-        train_test_split(features, labels, test_size=0.2)
+        split_train_test(df)
 
-    model = DecisionTreeClassifier(max_depth=max_depth)
-    model.fit(features_train, labels_train)
+    clf = DecisionTreeClassifier(max_depth=max_depth)
+    clf.fit(features_train, labels_train)
 
-    return eli5.format_as_text(eli5.explain_weights(model))
+    importances = list(zip(features_train.columns, clf.feature_importances_))
+    importances = sorted(importances, key=lambda x: x[1], reverse=True)
+
+    return importances
