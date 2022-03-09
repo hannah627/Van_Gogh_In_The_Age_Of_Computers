@@ -34,5 +34,4 @@ def query_api_topics():
                 else:
                     total += 1
                     terms[term] = 1
-    print(total)
-    return (terms, total)
+    return terms

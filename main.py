@@ -55,26 +55,10 @@ def remove_color_formatting(series):
     return series
 
 
-def format_bar_graph(f, x_axis_column, y_axis_column):
-    """
-    Takes a bokeh figure f and a column name col and returns the bokeh figure
-    with added formatting, including tooltips for col, an increased title
-    size of 16pt, and no vertical gridlines.
-    """
-    tooltips = [
-        (x_axis_column, ('@' + x_axis_column)),
-        (y_axis_column, ('@{' + y_axis_column + '}')),
-    ]
-    f.add_tools(HoverTool(tooltips=tooltips))
-
-    f.title.text_font_size = '16pt'
-    f.xaxis.major_label_text_font_size = '11.5pt'
-    f.xgrid.grid_line_color = None
-
-    return f
-
-
 def format_time_series(p, column, column2):
+    """
+    DESCRIPTION, PARAMETERS, RETURNS
+    """
     tooltips = [
         ('Year', '@Year{%F}'),
         (column, ('@' + column)),
@@ -185,6 +169,26 @@ def list_unique_from_file(df, col, x):
     genres = genres_df.loc[(genres_df['Count'] >= x), col]
     genres = genres.unique()
     return genres
+
+
+def format_bar_graph(f, x_axis_column, y_axis_column):
+    """
+    Takes a bokeh figure f and two strings, x_axis_column and y_axis_column,
+    and returns the bokeh figure with added formatting, including tooltips for
+    the x and y columns, an increased title size of 16pt, and no vertical
+    gridlines.
+    """
+    tooltips = [
+        (x_axis_column, ('@' + x_axis_column)),
+        (y_axis_column, ('@{' + y_axis_column + '}')),
+    ]
+    f.add_tools(HoverTool(tooltips=tooltips))
+
+    f.title.text_font_size = '16pt'
+    f.xaxis.major_label_text_font_size = '11.5pt'
+    f.xgrid.grid_line_color = None
+
+    return f
 
 
 def freq_colors_per_genre(df, genres):
@@ -345,8 +349,8 @@ def main():
     styles_over_time(df)
 
     # question 2 - What colors were used most in each genre?
-    # genres = list_unique_from_file(df, 'Genre', 15)
-    # freq_colors_per_genre(df_colors_hex, genres)
+    genres = list_unique_from_file(df, 'Genre', 15)
+    freq_colors_per_genre(df_colors_hex, genres)
 
     # question 3 -
     accuracy_at_depth = best_depth(df_colors_hex)
@@ -358,7 +362,7 @@ def main():
 
     # question 4 - What topics did Van Gogh paint about the most?
     """
-    topics, total = query_api_topics()
+    topics = query_api_topics()
     most_frequent_topics(topics, 'Most Frequent Topics in Van Gogh\'s \
 Paintings', 'graphs/q4.html')
     """
