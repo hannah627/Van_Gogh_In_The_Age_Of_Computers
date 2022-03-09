@@ -89,6 +89,24 @@ def format_bar_graph(f, col):
     return f
 
 
+def format_time_series(p, column):
+    tooltips = [
+        ('Year', '@Year{%F}'),
+        (column, ('@' + column))
+    ]
+    p.add_tools(HoverTool(tooltips=tooltips,
+                          formatters={'@Year': 'datetime'},
+                          mode='vline'))
+
+    p.title.text_font_size = '14pt'
+    p.xaxis.major_label_text_font_size = '11pt'
+    p.yaxis.major_label_text_font_size = '11pt'
+    p.xaxis.axis_label_text_font_size = '11.5pt'
+    p.yaxis.axis_label_text_font_size = '11.5pt'
+
+    return p
+
+
 def colors_over_time(df):
     """
     DESCRIPTION, PARAMETERS, RETURNS
@@ -111,31 +129,59 @@ def colors_over_time(df):
         hex_code = color_count['Hex Code'].iloc[0]
         source = ColumnDataSource(color_count)
 
-        # creates time series of the number of time color is used
+        # creates time series of the number of times color is used
         # and adds it to plots to be displayed
         p = figure(width=1000, height=750,
                    title=('Use of ' + color + ' Over Time'),
                    x_axis_label='Year',
                    y_axis_label='Count',
                    x_axis_type='datetime')
-        p.line(x='Year', y='Count',
-               color=hex_code, alpha=1, source=source)
+        p.line('Year', 'Count', color=hex_code,
+               alpha=1, source=source)
 
         # adds formating to the graph - changes title size, adds tooltips, etc.
-        p.add_tools(HoverTool(tooltips=[('Year', '@Year{%F}'),
-                                        ('Count', '@Count')],
-                              formatters={'@Year': 'datetime'},
-                              mode='vline'))
-        p.title.text_font_size = '14pt'
-        p.xaxis.major_label_text_font_size = '11.5pt'
-        p.yaxis.major_label_text_font_size = '11.5pt'
-        p.xaxis.axis_label_text_font_size = '11.5pt'
-        p.yaxis.axis_label_text_font_size = '11.5pt'
+        p = format_time_series(p, 'Count')
 
         plots.append(p)
 
     # opens html file in the browser and shows all time series in column layout
     show(column(*plots))
+
+
+def styles_over_time(df):
+    """
+    DESCRIPTION, PARAMETERS, RETURNS
+    """
+    output_file('graphs/q1-2.html')
+
+    p = figure(width=1000, height=750,
+               title=('Styles Over Time'),
+               x_axis_label='Year',
+               y_axis_label='Count',
+               x_axis_type='datetime')
+
+    colors = ['#DC267F', '#785EF0', '#648FFF', '#FE6100', '#FFB000']
+
+    # goes through each style in the file and creates time series
+    for style, color in zip(df['Style'].unique(), colors):
+        # filters data for style and counts
+        # the number of times style is used over time
+        style_count = df.loc[df['Style'] == style, ['Year', 'Style']]
+        style_count['Count'] = \
+            style_count.groupby('Year')['Style'].transform('count')
+        style_count['Year'] = pd.to_datetime(style_count['Year'],
+                                             format='%Y')
+        source = ColumnDataSource(style_count)
+
+        # creates and stacks the time series of the number of times
+        # style is used
+        p.line('Year', 'Count', legend_label=style,
+               color=color, alpha=1, source=source)
+
+        # adds formating to the graph - changes title size, adds tooltips, etc.
+        p = format_time_series(p, 'Count')
+
+    show(p)
 
 
 def freq_colors_per_genre(df, genres):
@@ -263,8 +309,8 @@ def main():
     df_colors_hex = process_data(df, hex_df)
 
     # question 1 -
-    colors_over_time(df_colors_hex)
-    # values_over_time(df, 'Style', 'graphs/q1-2.html')
+    # colors_over_time(df_colors_hex)
+    styles_over_time(df)
 
     # question 2 - What colors were used most in each genre?
     # genres = list_unique_from_file(df, 'Genre', 15)
