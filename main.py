@@ -244,12 +244,14 @@ def top_ten_importances(feature_importances):
         data.append({'Feature': feature,
                      'Validation Accuracy': importance})
     data = pd.DataFrame(data)
+    data['Color'] = ['#171723', '#490092', '#b66dff', '#ff6db6', '#006ddb',
+                     '#22cf22', '#ffdf4d', '#db6d00', '#8f4e00', '#920000']
     source = ColumnDataSource(data)
 
     f = figure(x_range=data['Feature'].tolist(), width=1200,
                title='Top 10 Features By Importance')
     f.vbar(x='Feature', top='Validation Accuracy',
-           width=0.9, source=source)
+           color='Color', width=0.9, source=source)
 
     f = format_bar_graph(f, 'Feature', 'Validation Accuracy')
 
