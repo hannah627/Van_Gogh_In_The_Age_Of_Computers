@@ -253,6 +253,7 @@ def top_ten_importances(feature_importances):
     """
     DESCRIPTION, PARAMETERS, RETURNS
     """
+    output_file('graphs/q3.html')
     top_10 = feature_importances[0:10]
 
     data = []
@@ -344,23 +345,24 @@ def main():
     # process data - merge dataframes, remove formatting, etc.
     df_colors_hex = process_data(df, hex_df)
 
-    # question 1 -
+    # question 1 - How did the colors and styles Van Gogh use change over time?
     # colors_over_time(df_colors_hex)
     # styles_over_time(df)
 
     # question 2 - What colors were used most in each genre?
-    # genres = list_unique_from_file(df, 'Genre', 15)
-    # freq_colors_per_genre(df_colors_hex, genres)
+    genres = list_unique_from_file(df, 'Genre', 15)
+    freq_colors_per_genre(df_colors_hex, genres)
 
-    # question 3 -
-    """
+    # question 3 - Can we create an accurate model to predict the style of a
+    # painting based on data such as the colors it contains and the year it was
+    # painted? and According to our model, what is the most important feature
+    # for determining the style of a painting?
     accuracy_at_depth = best_depth(df_colors_hex)
     print('Predicting test set using the depth of: ' +
           str(accuracy_at_depth[0]))
     print('Test set accuracy: ' + str(accuracy_at_depth[1]))
     top_ten_importances(sorted_feature_importances(df_colors_hex,
                                                    accuracy_at_depth[0]))
-    """
 
     # question 4 - What topics did Van Gogh paint about the most?
     """
@@ -370,7 +372,7 @@ Paintings', 'graphs/q4.html')
     """
 
     # testing!
-    test_most_frequent_topics()
+    # test_most_frequent_topics()
 
 
 if __name__ == '__main__':
