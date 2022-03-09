@@ -2,7 +2,20 @@
 Hannah Burrows and Sabrina Fang
 CSE 163 Section AB and AC
 
-Van Gogh in the Age of Computers is a project that seeks to explore ____
+Van Gogh in the Age of Computers is a project that seeks to explore Van Gogh's
+works digitally using the Colors of Van Gogh dataset made by Kaggle user
+Konstantinos, and found at https://www.kaggle.com/pointblanc/colors-of-van-gogh
+Our aim is to explore trends and patterns in his work to both better understand
+his works and his career, as well as to help the archival and restoration
+process of paintings by creating an interpretable machine learning model to
+predict the most important identifying information about a painting, which
+could make the process more efficient overall.
+
+This module is the main page of our code - by running it from the terminal,
+it should create the graphs for analyzing how colors and styles changed over
+time, what colors were most frequently used in which genres, and what topics
+Van Gogh most frequently painted about, as well as create the machine learning
+model and test our code.
 """
 
 import pandas as pd
@@ -11,11 +24,10 @@ from bokeh.io import output_file, show
 from bokeh.plotting import figure
 from bokeh.models import HoverTool, ColumnDataSource
 from bokeh.layouts import column
+from bokeh.palettes import Spectral
 
 from query_api import query_api_topics
 from machine_learning import best_depth, sorted_feature_importances
-
-from cse163_utils import assert_equals
 
 
 def process_data(df, hex_df):
@@ -278,8 +290,7 @@ def most_frequent_topics(topics, title, filename):
 
     # sorts dataframe and selects top 10
     top_10 = df.nlargest(10, 'Count')
-    top_10['Color'] = ['#171723', '#490092', '#b66dff', '#ff6db6', '#006ddb',
-                       '#22cf22', '#ffdf4d', '#db6d00', '#8f4e00', '#920000']
+    top_10['Color'] = Spectral[len(top_10)]
 
     # graphs sorted dataframe
     output_file(filename)
@@ -293,17 +304,6 @@ def most_frequent_topics(topics, title, filename):
     f = format_bar_graph(f, 'Topic', 'Count')
 
     show(f)
-
-
-def test_remove_color_formatting():
-    """
-    Tests the remove_color_formatting function by creating strings, passing
-    them to the function, and ensuring the function removes any formatting
-    given.
-    Can we turn series to lists to get this to work??
-    """
-    test_series_1 = pd.Series(['(', ')'])
-    assert_equals(pd.Series(['', '']), remove_color_formatting(test_series_1))
 
 
 def test_most_frequent_topics():
@@ -345,20 +345,22 @@ def main():
     df_colors_hex = process_data(df, hex_df)
 
     # question 1 -
-    colors_over_time(df_colors_hex)
-    styles_over_time(df)
+    # colors_over_time(df_colors_hex)
+    # styles_over_time(df)
 
     # question 2 - What colors were used most in each genre?
-    genres = list_unique_from_file(df, 'Genre', 15)
-    freq_colors_per_genre(df_colors_hex, genres)
+    # genres = list_unique_from_file(df, 'Genre', 15)
+    # freq_colors_per_genre(df_colors_hex, genres)
 
     # question 3 -
+    """
     accuracy_at_depth = best_depth(df_colors_hex)
     print('Predicting test set using the depth of: ' +
           str(accuracy_at_depth[0]))
     print('Test set accuracy: ' + str(accuracy_at_depth[1]))
     top_ten_importances(sorted_feature_importances(df_colors_hex,
                                                    accuracy_at_depth[0]))
+    """
 
     # question 4 - What topics did Van Gogh paint about the most?
     """
@@ -368,8 +370,7 @@ Paintings', 'graphs/q4.html')
     """
 
     # testing!
-    # test_most_frequent_topics()
-    # test_remove_color_formatting()
+    test_most_frequent_topics()
 
 
 if __name__ == '__main__':

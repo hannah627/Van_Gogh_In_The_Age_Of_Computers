@@ -3,7 +3,8 @@ Hannah Burrows and Sabrina Fang
 CSE 163 Section AB and AC
 
 This module contains all the code involving dealing with the Met Museum API
-(documentation found at https://metmuseum.github.io/).
+(documentation found at https://metmuseum.github.io/). Involves querying the
+API for data on Van Gogh's paintings.
 """
 
 import requests
@@ -21,17 +22,17 @@ def query_api_topics():
     """
     print('started querying api - this may take a while')
     terms = {}
-    total = 0
 
     paintings_ids = requests.get(MET_MUSEUM_API + '/search?q=Van_Gogh')
     for id in paintings_ids.json()['objectIDs']:
-        painting_info = requests.get(MET_MUSEUM_API + '/objects/' + str(id))
-        if painting_info.json()['tags']:
-            for tag in painting_info.json()['tags']:
+        response = requests.get(MET_MUSEUM_API + '/objects/' + str(id))
+        painting_info = response.json()
+        tags = painting_info.get('tags')
+        if tags:
+            for tag in tags:
                 term = tag['term']
                 if term in terms:
                     terms[term] += 1
                 else:
-                    total += 1
                     terms[term] = 1
     return terms
