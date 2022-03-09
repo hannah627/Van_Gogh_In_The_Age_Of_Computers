@@ -50,8 +50,8 @@ def best_depth(df):
     accuracies = pd.DataFrame(accuracies)
     best_depth = accuracies.nlargest(1, 'Validation Accuracy'
                                      )['Max Depth'].iloc[0]
-    accuracy_at_depth = float(accuracies.loc[accuracies['Max Depth'] == best_depth,
-                                             'Test Accuracy'])
+    accuracy_at_depth = float(accuracies.loc[accuracies['Max Depth'] ==
+                              best_depth, 'Test Accuracy'])
     return best_depth, accuracy_at_depth
 
 

@@ -97,8 +97,6 @@ def colors_over_time(df):
     """
     DESCRIPTION, PARAMETERS, RETURNS
     """
-    df['Year'] = pd.to_datetime(df['Year'], format='%Y')
-
     # index 0 (inclusive) to 5 (exclusive) for testing purposes
     colors = df['Color'].unique()
     colors = colors[0:5]
@@ -114,6 +112,7 @@ def colors_over_time(df):
                              ['Year', 'Color', 'Hex Code']]
         color_count['Count'] = \
             color_count.groupby('Year')['Color'].transform('count')
+        color_count['Year'] = pd.to_datetime(color_count['Year'], format='%Y')
         hex_code = color_count['Hex Code'].iloc[0]
         source = ColumnDataSource(color_count)
 
@@ -141,8 +140,6 @@ def styles_over_time(df):
     """
     DESCRIPTION, PARAMETERS, RETURNS
     """
-    df['Year'] = pd.to_datetime(df['Year'], format='%Y')
-
     output_file('graphs/q1-2.html')
 
     p = figure(width=1000,
@@ -277,6 +274,8 @@ def most_frequent_topics(topics, title, filename):
 
     # sorts dataframe and selects top 10
     top_10 = df.nlargest(10, 'Count')
+    top_10['Color'] = ['#171723', '#490092', '#b66dff', '#ff6db6', '#006ddb',
+                       '#22cf22', '#ffdf4d', '#db6d00', '#8f4e00', '#920000']
 
     # graphs sorted dataframe
     output_file(filename)
@@ -284,7 +283,7 @@ def most_frequent_topics(topics, title, filename):
     topic = top_10['Topic'].tolist()
 
     f = figure(x_range=topic, width=1000, title=(title))
-    f.vbar(x='Topic', top='Count', source=source, width=0.9)
+    f.vbar(x='Topic', top='Count', color='Color', source=source, width=0.9)
 
     # adds formating to the graph - changes title size, adds tooltips, etc.
     f = format_bar_graph(f, 'Topic', 'Count')
