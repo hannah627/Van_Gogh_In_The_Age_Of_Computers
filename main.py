@@ -6,7 +6,6 @@ Van Gogh in the Age of Computers is a project that seeks to explore ____
 """
 
 import pandas as pd
-import numpy
 
 from bokeh.io import output_file, show
 from bokeh.plotting import figure
@@ -75,10 +74,11 @@ def format_bar_graph(f, x_axis_column, y_axis_column):
     return f
 
 
-def format_time_series(p, column):
+def format_time_series(p, column, column2):
     tooltips = [
         ('Year', '@Year{%F}'),
-        (column, '@' + column)
+        (column, ('@' + column)),
+        (column2, ('@' + column2))
     ]
     p.add_tools(HoverTool(tooltips=tooltips,
                           formatters={'@Year': 'datetime'},
@@ -128,7 +128,7 @@ def colors_over_time(df):
                alpha=1, source=source)
 
         # adds formating to the graph - changes title size, adds tooltips, etc.
-        p = format_time_series(p, 'Count')
+        p = format_time_series(p, 'Count', 'Color')
 
         plots.append(p)
 
@@ -169,41 +169,45 @@ def styles_over_time(df):
         # style is used
         p.line('Year', 'Count', legend_label=style,
                color=color, alpha=1, source=source)
+        p.legend.location = 'top_left'
 
         # adds formating to the graph - changes title size, adds tooltips, etc.
-        p = format_time_series(p, 'Count')
+        p = format_time_series(p, 'Count', 'Style')
 
     show(p)
 
 
-def freq_colors_per_genre(df):
+def list_unique_from_file(df, col, x):
+    """
+    Takes a pandas dataframe df and returns a list of the unique values from a
+    given column col where those values appear x times or more in the
+    dataframe.
+    """
+    genres_df = df.loc[:, ['Name', col]]
+    genres_df['Count'] = genres_df.groupby(col).transform('count')
+    genres = genres_df.loc[(genres_df['Count'] >= x), col]
+    genres = genres.unique()
+    return genres
+
+
+def freq_colors_per_genre(df, genres):
     """
     Takes a pandas dataframe df containing genre, color, and hex code
-    information for paintings and creates a single figure with bar graphs
-    showing the top 10 most used colors and their counts for each genre in the
-    dataframe. Each bar is encoded with the first occuring (if there are
-    multiple) hex code corresponding with that color. If a genre does not use
-    10 or more colors, the bar graph shows as many colors as the genre uses.
-    The figure should open in the browser automatically, but is also saved in
-    an html file, graphs/q2.html.
+    information for paintings and a list genres, creates a single figure with
+    bar graphs showing the top 10 most used colors and their counts for each
+    genre in the dataframe. Each bar is encoded with the first occuring (if
+    there are multiple) hex code corresponding with that color. If a genre does
+    not use 10 or more colors, the bar graph shows as many colors as the genre
+    uses. The figure should open in the browser automatically, but is also
+    saved in an html file, graphs/q2.html.
     """
-    # creates list of unique genres in the dataframe
-    genres_df = df.loc[:, ['Name', 'Genre']]
-    genres_df['Count'] = genres_df.groupby('Genre').transform('count')
-    genres = genres_df.loc[(genres_df['Count'] >= 15), 'Genre']
-    genres = genres.unique()
-    genres = numpy.insert(genres, 0, 'all')  # so we can look at all genres too
-
     output_file('graphs/q2.html')
     plots = []
 
     for genre in genres:
         # filters data for genre and counts colors
-        if (genre != 'all'):
-            mask = df['Genre'] == genre
-            temp_df = df.loc[mask, ['Color', 'Hex Code']]
-        else:
-            temp_df = df.loc[:, ['Color', 'Hex Code']]
+        mask = df['Genre'] == genre
+        temp_df = df.loc[mask, ['Color', 'Hex Code']]
         temp_df['Count'] = temp_df.groupby('Color').transform('count')
         temp_df = temp_df.drop_duplicates(subset=['Color'])
 
@@ -338,11 +342,12 @@ def main():
     df_colors_hex = process_data(df, hex_df)
 
     # question 1 -
-    # colors_over_time(df_colors_hex)
-    # styles_over_time(df)
+    colors_over_time(df_colors_hex)
+    styles_over_time(df)
 
     # question 2 - What colors were used most in each genre?
-    # freq_colors_per_genre(df_colors_hex)
+    # genres = list_unique_from_file(df, 'Genre', 15)
+    # freq_colors_per_genre(df_colors_hex, genres)
 
     # question 3 -
     accuracy_at_depth = best_depth(df_colors_hex)
