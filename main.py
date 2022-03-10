@@ -135,7 +135,7 @@ def colors_over_time(df):
                    x_axis_label='Year',
                    y_axis_label=(color + ' Count'),
                    x_axis_type='datetime')
-        p.line('Year', 'Count', color=hex_code,
+        p.line('Year', 'Count', color=hex_code, line_width=5,
                alpha=1, source=source)
         p.xgrid.grid_line_color = None
         # p.ygrid.grid_line_color = None
@@ -196,7 +196,7 @@ def styles_over_time(df):
 
         # creates and stacks the time series of the number of times
         # style is used
-        p.line('Year', 'Count', legend_label=style,
+        p.line('Year', 'Count', legend_label=style, line_width=5
                color=color, alpha=1, source=source)
         p.legend.location = 'top_left'
 
