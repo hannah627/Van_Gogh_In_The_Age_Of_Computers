@@ -104,7 +104,7 @@ def colors_over_time(df):
     """
     # only index 0 (inclusive) to 5 (exclusive) for testing purposes
     colors = df['Color'].unique()
-    colors = colors[0:5]
+    colors = colors[0:6]
 
     output_file('graphs/q1-1.html')
     plots = []
@@ -121,8 +121,9 @@ def colors_over_time(df):
 
         # saves data for each color to csv in q1-1_testing_data folder for
         # later testing (graphing using alternative software)
+        color_count = color_count.set_index('Year')
         file_name = 'data/q1-1_testing_data/' + color + '.csv'
-        df.to_csv(file_name)
+        color_count.to_csv(file_name)
 
         hex_code = color_count['Hex Code'].iloc[0]
         source = ColumnDataSource(color_count)
@@ -179,8 +180,9 @@ def styles_over_time(df):
 
         # saves data for each color to csv in q1-2_testing_data folder for
         # later testing (graphing using alternative software)
+        style_count = style_count.set_index('Year')
         file_name = 'data/q1-2_testing_data/' + style + '.csv'
-        df.to_csv(file_name)
+        style_count.to_csv(file_name)
 
         source = ColumnDataSource(style_count)
 
@@ -297,12 +299,13 @@ def top_ten_importances(feature_importances):
 
     # saves data for top 10 most important features to csv in q3_testing_data
     # folder for later testing (graphing using alternative software)
+    data = data.set_index('Feature')
     file_name = 'data/q3_testing_data/top_ten_importances.csv'
     data.to_csv(file_name)
 
     source = ColumnDataSource(data)
 
-    f = figure(x_range=data['Feature'].tolist(), width=1200,
+    f = figure(x_range=data.index.tolist(), width=1200,
                title='Top 10 Features By Importance')
     f.vbar(x='Feature', top='Validation Accuracy',
            color='Color', width=0.9, source=source)
@@ -382,8 +385,8 @@ def main():
     df_colors_hex = process_data(df, hex_df)
 
     # question 1 - How did the colors and styles Van Gogh use change over time?
-    # colors_over_time(df_colors_hex)
-    # styles_over_time(df)
+    colors_over_time(df_colors_hex)
+    styles_over_time(df)
 
     # question 2 - What colors were used most in each genre?
     """
