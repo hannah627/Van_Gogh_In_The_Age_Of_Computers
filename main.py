@@ -137,6 +137,14 @@ def colors_over_time(df):
                    x_axis_type='datetime')
         p.line('Year', 'Count', color=hex_code,
                alpha=1, source=source)
+        p.xgrid.grid_line_color = None
+        # p.ygrid.grid_line_color = None
+
+        # change graph background to gray for lines that are white
+        """
+        if (color == 'Snow') | (color == 'Ivory') | (color == 'Seashell'):
+            p.background_fill_color = 'gray'
+        """
 
         # adds formating to the graph - changes title size, adds tooltips, etc.
         p = format_time_series(p, 'Count', 'Color')
@@ -398,12 +406,14 @@ def main():
     # painting based on data such as the colors it contains and the year it was
     # painted? and According to our model, what is the most important feature
     # for determining the style of a painting?
+    """
     accuracy_at_depth = best_depth(df_colors_hex)
     print('Predicting test set using the depth of: ' +
           str(accuracy_at_depth[0]))
     print('Test set accuracy: ' + str(accuracy_at_depth[1]))
     top_ten_importances(sorted_feature_importances(df_colors_hex,
                                                    accuracy_at_depth[0]))
+    """
 
     # question 4 - What topics did Van Gogh paint about the most?
     """
