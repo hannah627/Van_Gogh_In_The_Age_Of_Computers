@@ -12,6 +12,11 @@ from sklearn.metrics import accuracy_score
 
 
 def split_train_test(df):
+    """
+    Takes the pandas dataframe df containing the data about Van Gogh's
+    paintings. Returns the data split into the train set and test set
+    in the form of a four-element tuple.
+    """
     filtered = df[['Name', 'Color', 'Year', 'Genre', 'Style']].dropna()
 
     features = pd.get_dummies(filtered.loc[:, filtered.columns != 'Style'])
@@ -22,7 +27,12 @@ def split_train_test(df):
 
 def best_depth(df):
     """
-    DESCRIPTION, PARAMETERS, RETURNS
+    Takes the pandas dataframe df containing the data about Van Gogh's
+    paintings and determines the best value for the hyperparameter
+    max depth based on the performance of the model on the validation set.
+    Returns a tuple with the best value for the hyperparemeter max depth
+    and the prediction accuracy of the model with max depth set to the
+    best value on the test set.
     """
     features_train, features_test, labels_train, labels_test = \
         split_train_test(df)
@@ -56,6 +66,13 @@ def best_depth(df):
 
 
 def sorted_feature_importances(df, max_depth):
+    """
+    Takes the pandas dataframe df containing the data about Van Gogh's
+    paintings and the hyperparameter max_depth. Returns a list of tuples
+    with the feature names and feature importances of the features used
+    to train the model with the max depth set to max_depth sorted from
+    highest to lowest importance.
+    """
     features_train, features_test, labels_train, labels_test = \
         split_train_test(df)
 

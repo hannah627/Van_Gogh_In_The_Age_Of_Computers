@@ -69,7 +69,9 @@ def remove_color_formatting(series):
 
 def format_time_series(p, column, column2):
     """
-    DESCRIPTION, PARAMETERS, RETURNS
+    Takes a bokeh figure p and two strings, x_axis_column and y_axis_column,
+    and returns the bokeh figure with added formatting, including tooltips for
+    the x and y columns and an increased title size of 16pt.
     """
     tooltips = [
         ('Year', '@Year{%F}'),
@@ -91,9 +93,16 @@ def format_time_series(p, column, column2):
 
 def colors_over_time(df):
     """
-    DESCRIPTION, PARAMETERS, RETURNS
+    Takes a pandas dataframe df containing year, color, and hex code
+    information for paintings and creates a time series for each color
+    in the dataframe showing the number of times the color was used each year.
+    Each figure is encoded with the first occuring (if there are multiple)
+    hex code corresponding with that color. If the hex code is the same as the
+    hex code for the background color, the background color is changed.
+    The figure should open in the browser automatically, but is also saved
+    in an html file, graphs/q1-1.html.
     """
-    # index 0 (inclusive) to 5 (exclusive) for testing purposes
+    # only index 0 (inclusive) to 5 (exclusive) for testing purposes
     colors = df['Color'].unique()
     colors = colors[0:5]
 
@@ -109,6 +118,12 @@ def colors_over_time(df):
         color_count['Count'] = \
             color_count.groupby('Year')['Color'].transform('count')
         color_count['Year'] = pd.to_datetime(color_count['Year'], format='%Y')
+
+        # saves data for each color to csv in q1-1_testing_data folder for
+        # later testing (graphing using alternative software)
+        file_name = 'data/q1-1_testing_data/' + color + '.csv'
+        df.to_csv(file_name)
+
         hex_code = color_count['Hex Code'].iloc[0]
         source = ColumnDataSource(color_count)
 
@@ -132,9 +147,14 @@ def colors_over_time(df):
 
 
 def styles_over_time(df):
-
     """
-    DESCRIPTION, PARAMETERS, RETURNS
+    Takes a pandas dataframe df containing year and style information
+    for paintings and creates a stacked time series of all the styles
+    in the dataframe showing the number of times each style was used each year.
+    The line representing each style is encoded with a unique hex code from
+    the list colors and labeled in the legend. The figure should open
+    in the browser automatically, but is also saved in an html file,
+    graphs/q1-2.html.
     """
     output_file('graphs/q1-2.html')
 
@@ -156,6 +176,12 @@ def styles_over_time(df):
             style_count.groupby('Year')['Style'].transform('count')
         style_count['Year'] = pd.to_datetime(style_count['Year'],
                                              format='%Y')
+
+        # saves data for each color to csv in q1-2_testing_data folder for
+        # later testing (graphing using alternative software)
+        file_name = 'data/q1-2_testing_data/' + style + '.csv'
+        df.to_csv(file_name)
+
         source = ColumnDataSource(style_count)
 
         # creates and stacks the time series of the number of times
@@ -251,7 +277,11 @@ def freq_colors_per_genre(df, genres):
 
 def top_ten_importances(feature_importances):
     """
-    DESCRIPTION, PARAMETERS, RETURNS
+    Takes a list feature_importances containing tuples with feature names and
+    feature importances and creates a single figure with bar graphs showing
+    the top 10 most important features in the list and their importances.
+    The figure should open in the browser automatically, but is also saved
+    in an html file, graphs/q3.html.
     """
     output_file('graphs/q3.html')
     top_10 = feature_importances[0:10]
@@ -264,6 +294,12 @@ def top_ten_importances(feature_importances):
     data = pd.DataFrame(data)
     data['Color'] = ['#171723', '#490092', '#b66dff', '#ff6db6', '#006ddb',
                      '#22cf22', '#ffdf4d', '#db6d00', '#8f4e00', '#920000']
+
+    # saves data for top 10 most important features to csv in q3_testing_data
+    # folder for later testing (graphing using alternative software)
+    file_name = 'data/q3_testing_data/top_ten_importances.csv'
+    data.to_csv(file_name)
+
     source = ColumnDataSource(data)
 
     f = figure(x_range=data['Feature'].tolist(), width=1200,
@@ -350,8 +386,10 @@ def main():
     # styles_over_time(df)
 
     # question 2 - What colors were used most in each genre?
+    """
     genres = list_unique_from_file(df, 'Genre', 15)
     freq_colors_per_genre(df_colors_hex, genres)
+    """
 
     # question 3 - Can we create an accurate model to predict the style of a
     # painting based on data such as the colors it contains and the year it was
