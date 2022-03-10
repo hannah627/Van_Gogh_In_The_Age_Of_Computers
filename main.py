@@ -102,7 +102,7 @@ def colors_over_time(df):
     The figure should open in the browser automatically, but is also saved
     in an html file, graphs/q1-1.html.
     """
-    # only index 0 (inclusive) to 5 (exclusive) for testing purposes
+    # only index 0 (inclusive) to 6 (exclusive) for testing purposes
     colors = df['Color'].unique()
     colors = colors[0:6]
 
@@ -138,13 +138,10 @@ def colors_over_time(df):
         p.line('Year', 'Count', color=hex_code, line_width=5,
                alpha=1, source=source)
         p.xgrid.grid_line_color = None
-        # p.ygrid.grid_line_color = None
 
         # change graph background to gray for lines that are white
-        """
-        if (color == 'Snow') | (color == 'Ivory') | (color == 'Seashell'):
+        if hex_code == '#FFFFFF':
             p.background_fill_color = 'gray'
-        """
 
         # adds formating to the graph - changes title size, adds tooltips, etc.
         p = format_time_series(p, 'Count', 'Color')
