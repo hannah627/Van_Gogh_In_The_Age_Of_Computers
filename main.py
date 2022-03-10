@@ -196,7 +196,7 @@ def styles_over_time(df):
 
         # creates and stacks the time series of the number of times
         # style is used
-        p.line('Year', 'Count', legend_label=style, line_width=5
+        p.line('Year', 'Count', legend_label=style, line_width=5,
                color=color, alpha=1, source=source)
         p.legend.location = 'top_left'
 
