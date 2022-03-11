@@ -38,7 +38,7 @@ def process_data(df, hex_df):
     and processes the data by removing formatting in columns as necessary and
     joining the two dataframes together. Returns the processed dataframe.
     """
-    df.loc[1618, 'Year'] = '1888'
+    df.loc[1618, 'Year'] = 1888
     hex_df = hex_df.rename(columns={'Name': 'Hex Name', 'Colors': 'Hex Code'})
 
     exploded_colors = remove_color_formatting(df['Colors'])
@@ -113,10 +113,15 @@ def colors_over_time(df):
     for color in colors:
         # filters data for color and counts
         # the number of times color is used over time
+        years = pd.DataFrame()
+        years['Year'] = df['Year'].unique()
         color_count = df.loc[df['Color'] == color,
-                             ['Year', 'Color', 'Hex Code']]
+                             ['Year', 'Color']]
+        color_count = years.merge(color_count, left_on='Year', right_on='Year',
+                                  how='left')
         color_count['Count'] = \
             color_count.groupby('Year')['Color'].transform('count')
+        color_count['Color'] = color_count['Color'].fillna(color)
         color_count['Year'] = pd.to_datetime(color_count['Year'], format='%Y')
 
         # saves data for each color to csv in q1-1_testing_data folder for
@@ -125,8 +130,8 @@ def colors_over_time(df):
         file_name = 'data/q1-1_testing_data/' + color + '.csv'
         color_count.to_csv(file_name)
 
-        hex_code = color_count['Hex Code'].iloc[0]
         source = ColumnDataSource(color_count)
+        hex_code = df.loc[df['Color'] == color, 'Hex Code'].iloc[0]
 
         # creates time series of the number of times color is used
         # and adds it to plots to be displayed
@@ -177,9 +182,14 @@ def styles_over_time(df):
     for style, color in zip(df['Style'].unique(), colors):
         # filters data for style and counts
         # the number of times style is used over time
+        years = pd.DataFrame()
+        years['Year'] = df['Year'].unique()
         style_count = df.loc[df['Style'] == style, ['Year', 'Style']]
+        style_count = years.merge(style_count, left_on='Year', right_on='Year',
+                                  how='left')
         style_count['Count'] = \
             style_count.groupby('Year')['Style'].transform('count')
+        style_count['Style'] = style_count['Style'].fillna(style)
         style_count['Year'] = pd.to_datetime(style_count['Year'],
                                              format='%Y')
 
