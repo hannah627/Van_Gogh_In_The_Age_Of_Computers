@@ -18,6 +18,7 @@ Van Gogh most frequently painted about, as well as create the machine learning
 model and test our code.
 """
 
+from turtle import left
 import pandas as pd
 
 from bokeh.io import output_file, show
@@ -102,8 +103,8 @@ def colors_over_time(df):
     The figure should open in the browser automatically, but is also saved
     in an html file, graphs/q1-1.html.
     """
-    # only index 0 (inclusive) to 6 (exclusive) for testing purposes
     colors = df['Color'].unique()
+    # only index 0 (inclusive) to 6 (exclusive) for testing purposes
     colors = colors[0:6]
 
     output_file('graphs/q1-1.html')
@@ -113,10 +114,8 @@ def colors_over_time(df):
     for color in colors:
         # filters data for color and counts
         # the number of times color is used over time
-        years = pd.DataFrame()
-        years['Year'] = df['Year'].unique()
-        color_count = df.loc[df['Color'] == color,
-                             ['Year', 'Color']]
+        years = pd.DataFrame({'Year': df['Year'].unique()})
+        color_count = df.loc[df['Color'] == color, ['Year', 'Color']]
         color_count = years.merge(color_count, left_on='Year', right_on='Year',
                                   how='left')
         color_count['Count'] = \
@@ -182,16 +181,14 @@ def styles_over_time(df):
     for style, color in zip(df['Style'].unique(), colors):
         # filters data for style and counts
         # the number of times style is used over time
-        years = pd.DataFrame()
-        years['Year'] = df['Year'].unique()
+        years = pd.DataFrame({'Year': df['Year'].unique()})
         style_count = df.loc[df['Style'] == style, ['Year', 'Style']]
         style_count = years.merge(style_count, left_on='Year', right_on='Year',
                                   how='left')
         style_count['Count'] = \
             style_count.groupby('Year')['Style'].transform('count')
         style_count['Style'] = style_count['Style'].fillna(style)
-        style_count['Year'] = pd.to_datetime(style_count['Year'],
-                                             format='%Y')
+        style_count['Year'] = pd.to_datetime(style_count['Year'], format='%Y')
 
         # saves data for each color to csv in q1-2_testing_data folder for
         # later testing (graphing using alternative software)
@@ -301,6 +298,7 @@ def top_ten_importances(feature_importances):
     in an html file, graphs/q3.html.
     """
     output_file('graphs/q3.html')
+    # selects the top 10 colors
     top_10 = feature_importances[0:10]
 
     data = []
@@ -320,13 +318,16 @@ def top_ten_importances(feature_importances):
 
     source = ColumnDataSource(data)
 
+    # creates bar graph of the features
     f = figure(x_range=data.index.tolist(), width=1200,
                title='Top 10 Features By Importance')
     f.vbar(x='Feature', top='Validation Accuracy',
            color='Color', width=0.9, source=source)
 
+    # adds formating to the graph - changes title size, adds tooltips, etc.
     f = format_bar_graph(f, 'Feature', 'Validation Accuracy')
 
+    # opens html file in the browser and shows bar graph
     show(f)
 
 
