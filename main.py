@@ -140,7 +140,7 @@ def colors_over_time(df):
                    y_axis_label=(color + ' Count'),
                    x_axis_type='datetime')
         p.line('Year', 'Count', color=hex_code, line_width=5,
-               alpha=1, source=source)
+               source=source)
         p.xgrid.grid_line_color = None
 
         # change graph background to gray for lines that are white
@@ -201,7 +201,7 @@ def styles_over_time(df):
         # creates and stacks the time series of the number of times
         # style is used
         p.line('Year', 'Count', legend_label=style, line_width=5,
-               color=color, alpha=1, source=source)
+               color=color, source=source)
         p.legend.location = 'top_left'
 
         # adds formating to the graph - changes title size, adds tooltips, etc.
@@ -305,7 +305,7 @@ def top_ten_importances(feature_importances):
     for feature, importance in top_10:
         feature = feature.replace('_', ': ')
         data.append({'Feature': feature,
-                     'Validation Accuracy': importance})
+                     'Importance': importance})
     data = pd.DataFrame(data)
     data['Color'] = ['#171723', '#490092', '#b66dff', '#ff6db6', '#006ddb',
                      '#22cf22', '#ffdf4d', '#db6d00', '#8f4e00', '#920000']
@@ -319,13 +319,16 @@ def top_ten_importances(feature_importances):
     source = ColumnDataSource(data)
 
     # creates bar graph of the features
-    f = figure(x_range=data.index.tolist(), width=1200,
-               title='Top 10 Features By Importance')
-    f.vbar(x='Feature', top='Validation Accuracy',
+    f = figure(x_range=data.index.tolist(), width=1200, height=950,
+               title='Top 10 Features By Importance',
+               y_axis_label='Importance')
+    f.vbar(x='Feature', top='Importance',
            color='Color', width=0.9, source=source)
 
     # adds formating to the graph - changes title size, adds tooltips, etc.
-    f = format_bar_graph(f, 'Feature', 'Validation Accuracy')
+    f = format_bar_graph(f, 'Feature', 'Importance')
+    f.yaxis.axis_label_text_font_size = '11.5pt'
+    f.xaxis.major_label_orientation = 'vertical'
 
     # opens html file in the browser and shows bar graph
     show(f)
@@ -414,14 +417,12 @@ def main():
     # painting based on data such as the colors it contains and the year it was
     # painted? and According to our model, what is the most important feature
     # for determining the style of a painting?
-    """
     accuracy_at_depth = best_depth(df_colors_hex)
     print('Predicting test set using the depth of: ' +
           str(accuracy_at_depth[0]))
     print('Test set accuracy: ' + str(accuracy_at_depth[1]))
     top_ten_importances(sorted_feature_importances(df_colors_hex,
                                                    accuracy_at_depth[0]))
-    """
 
     # question 4 - What topics did Van Gogh paint about the most?
     """
