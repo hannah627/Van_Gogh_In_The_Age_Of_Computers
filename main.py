@@ -18,7 +18,6 @@ Van Gogh most frequently painted about, as well as create the machine learning
 model and test our code.
 """
 
-from turtle import left
 import pandas as pd
 
 from bokeh.io import output_file, show
@@ -408,10 +407,8 @@ def main():
     styles_over_time(df)
 
     # question 2 - What colors were used most in each genre?
-    """
     genres = list_unique_from_file(df, 'Genre', 15)
     freq_colors_per_genre(df_colors_hex, genres)
-    """
 
     # question 3 - Can we create an accurate model to predict the style of a
     # painting based on data such as the colors it contains and the year it was
@@ -425,14 +422,12 @@ def main():
                                                    accuracy_at_depth[0]))
 
     # question 4 - What topics did Van Gogh paint about the most?
-    """
     topics = query_api_topics()
     most_frequent_topics(topics, 'Most Frequent Topics in Van Gogh\'s \
 Paintings', 'graphs/q4.html')
-    """
 
     # testing!
-    # test_most_frequent_topics()
+    test_most_frequent_topics()
 
 
 if __name__ == '__main__':
