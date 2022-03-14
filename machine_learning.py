@@ -4,11 +4,12 @@ CSE 163 Section AB and AC
 
 This module contains all the code involving creating and training a
 machine learning model to accurately predict the style of a Van Gogh
-painting as well as returning the feature names and feature importances
-of the features used to train this model.
+painting, as well as returning the names and importances of the
+features used to train this model.
 """
 
 import pandas as pd
+
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score
@@ -16,7 +17,7 @@ from sklearn.metrics import accuracy_score
 
 def split_train_test(df):
     """
-    Takes the pandas dataframe df containing the data about Van Gogh's
+    Takes a pandas dataframe df containing data about Van Gogh's
     paintings. Returns the data split into the train set and test set
     in the form of a four-element tuple.
     """
@@ -30,12 +31,11 @@ def split_train_test(df):
 
 def best_depth(df):
     """
-    Takes the pandas dataframe df containing the data about Van Gogh's
+    Takes a pandas dataframe df containing data about Van Gogh's
     paintings and determines the best value for the hyperparameter
-    max depth based on the performance of the model on the validation set.
-    Returns a tuple with the best value for the hyperparemeter max depth
-    and the prediction accuracy of the model with max depth set to the
-    best value on the test set.
+    max depth based on the performance of the model on the validation
+    set. Returns a tuple with the best value and the prediction accuracy
+    of the model with that max depth on the test set.
     """
     features_train, features_test, labels_train, labels_test = \
         split_train_test(df)
@@ -70,11 +70,11 @@ def best_depth(df):
 
 def sorted_feature_importances(df, max_depth):
     """
-    Takes the pandas dataframe df containing the data about Van Gogh's
+    Takes a pandas dataframe df containing data about Van Gogh's
     paintings and the hyperparameter max_depth. Returns a list of tuples
-    with the feature names and feature importances of the features used
-    to train the model with the max depth set to max_depth sorted from
-    highest to lowest importance.
+    with the names and importances of the features used to train the
+    model with a max depth of max_depth sorted from greatest to least
+    importance.
     """
     features_train, features_test, labels_train, labels_test = \
         split_train_test(df)
