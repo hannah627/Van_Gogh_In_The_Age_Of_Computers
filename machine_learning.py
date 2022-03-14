@@ -2,7 +2,10 @@
 Hannah Burrows and Sabrina Fang
 CSE 163 Section AB and AC
 
-DESCRIPTION
+This module contains all the code involving creating and training a
+machine learning model to accurately predict the style of a Van Gogh
+painting as well as returning the feature names and feature importances
+of the features used to train this model.
 """
 
 import pandas as pd
